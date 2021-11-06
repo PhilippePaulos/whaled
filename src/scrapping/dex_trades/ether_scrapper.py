@@ -9,7 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from model.action import Action
 from model.token_trade import TokenTrade
-from scrapping.scrapper import ScanScrapper
+from scrapping.dex_trades.trades_scrapper import ScanScrapper
 from scrapping.utils.utils import get_currency_value
 
 
