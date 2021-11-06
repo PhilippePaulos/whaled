@@ -9,16 +9,23 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from model.action import Action
 from model.token_trade import TokenTrade
-from scrapper import ScanScrapper
-from utils.utils import get_currency_value
+from scrapping.scrapper import ScanScrapper
+from scrapping.utils.utils import get_currency_value
 
 
 class EtherScanScrapper(ScanScrapper):
+    def __init__(self) -> None:
+        super().__init__()
+        self._base_url = 'https://etherscan.io/'
 
-    def get_trades(self, url: str):
+    @property
+    def base_url(self):
+        return self._base_url
+
+    def get_trades(self, token_adress: str):
         s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
         driver = webdriver.Firefox(service=s)
-        driver.get(url)
+        driver.get(self.get_trades_url(token_adress))
         iframe = driver.find_element(By.XPATH, '//*[@id="dextrackeriframe"]')
         wait = WebDriverWait(driver, 10)
         wait.until(EC.frame_to_be_available_and_switch_to_it(iframe))
@@ -31,8 +38,3 @@ class EtherScanScrapper(ScanScrapper):
             trades.append(TokenTrade(txn_hash=columns[1].text, action=action, amount_out=columns[5].text,
                                      amount_in=columns[6].text, value=get_currency_value(columns[8].text)))
         return trades
-
-
-if __name__ == '__main__':
-    # get_trades('https://etherscan.io/token/0x761d38e5ddf6ccf6cf7c55759d5210750b5d60f3#tokenTrade')
-    sys.exit(0)
