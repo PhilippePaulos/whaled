@@ -5,12 +5,12 @@ from unittest.mock import patch
 
 from model.action import Action
 from model.token_trade import TokenTrade
-from scrapping.ether_scrapper import EtherScanScrapper
+from scrapping.dex_trades.ether_scrapper import EtherScanScrapper
 
 
 class EtherScanScrapperTest(TestCase):
 
-    @patch('scrapping.ether_scrapper.EtherScanScrapper.get_trades_url')
+    @patch('scrapping.dex_trades.ether_scrapper.EtherScanScrapper.get_trades_url')
     def test_scrap(self, mock_get_trades_url):
         trades_html_path = pathlib.Path('resources/trades/etherscan/token_trades.html').resolve()
         mock_get_trades_url.return_value = f'file://{trades_html_path}'
