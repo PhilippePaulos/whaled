@@ -9,6 +9,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from model.action import Action
+from model.logger_factory import LoggerFactory
 from model.token_trade import TokenTrade
 from scrapping.dex_trades.trades_scrapper import ScanScrapper
 
@@ -18,6 +19,7 @@ class BscScanScrapper(ScanScrapper):
     def __init__(self) -> None:
         super().__init__()
         self._base_url = 'https://bscscan.com/'
+        self._logger = LoggerFactory().get_logger('bsc_scrapper.log', logging.INFO)
 
     @property
     def base_url(self):
@@ -42,14 +44,14 @@ class BscScanScrapper(ScanScrapper):
             elif taker_adress == token_adress:
                 action = Action.BUY
             else:
-                #TODO create log factory
-                logging.Logger.warning('could not get action type')
+                self._logger.warning('Could not get action type')
                 action = Action.UNKNOWN
-            # TODO get currency value from API (coingecko, marketcap, pancaswap...)
-            # We need to find a way to get price of shitcoins not listed in coingecko/marketcap
-            # Tried pancakeswap but price is not aligned with coingecko:
-            # https://api.pancakeswap.info/api/v2/tokens/0x2859e4544c4bb03966803b044a93563bd2d0dd4d
-            # try moralis api https://www.youtube.com/watch?v=bjJlluIHQAg
-            trades.append(TokenTrade(txn_hash=columns[0].text, action=action, amount_out=columns[3].text,
-                                     amount_in=columns[5].text, value=Decimal('0')))
+            # TODO get currency value from bogged scrapper (in different thread)
+            trade = TokenTrade(txn_hash=columns[0].text, action=action, amount_out=columns[3].text,
+                                     amount_in=columns[5].text, value=Decimal('0'))
+            self._logger.debug(f'trade: {trade}')
+            trades.append(trade)
         return trades
+
+if __name__ == '__main__':
+    BscScanScrapper().get_trades('0x9d12cc56d133fc5c60e9385b7a92f35a682da0bd')

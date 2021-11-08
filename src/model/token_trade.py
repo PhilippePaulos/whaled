@@ -17,3 +17,9 @@ class TokenTrade:
             return self.txn_hash == o.txn_hash and self.action == o.action and self.amount_out == o.amount_out \
                    and self.amount_in == o.amount_in
         return False
+
+    def __str__(self) -> str:
+        return f'txn_hash: {self.txn_hash}, action: {self.action}, amount_out: {self.amount_out}, ' \
+               f'amount_in: {self.amount_in}, value: {self.value}'
+
+

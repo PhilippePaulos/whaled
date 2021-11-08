@@ -1,5 +1,3 @@
-import sys
-
 import webdriver_manager.firefox
 from selenium import webdriver
 from selenium.webdriver.common.by import By

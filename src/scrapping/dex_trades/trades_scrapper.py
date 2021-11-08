@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class ScanScrapper(ABC):
+
     @property
     @abstractmethod
     def base_url(self):
