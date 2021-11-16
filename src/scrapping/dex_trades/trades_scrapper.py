@@ -1,7 +1,14 @@
+import logging
 from abc import ABC, abstractmethod
+
+from model.logger_factory import LoggerFactory
 
 
 class ScanScrapper(ABC):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._logger = LoggerFactory().get_logger(logging.DEBUG, log_file='scrapper.log')
 
     @property
     @abstractmethod
