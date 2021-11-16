@@ -8,7 +8,7 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-from model.singleton import Singleton
+from model.common.singleton import Singleton
 from scrapping.currency_prices.currency_scrapper import CurrencyScrapper
 from scrapping.utils import utils
 

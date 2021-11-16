@@ -5,7 +5,7 @@ from re import sub
 from timeit import default_timer
 
 
-from model.logger_factory import LoggerFactory
+logger = logging.getLogger()
 
 
 def get_currency_value(value: str) -> Decimal:
@@ -15,12 +15,13 @@ def get_currency_value(value: str) -> Decimal:
 def processing_time():
     def decorator(func):
         def wrapper(*args, **kwargs):
-            logger = LoggerFactory().get_logger(logging.INFO, log_file='bsc_scrapper.log')
-            before = default_timer()
-            result = func(*args, **kwargs)
-            after = default_timer()
             if logger.level == logging.DEBUG:
+                before = default_timer()
+                result = func(*args, **kwargs)
+                after = default_timer()
                 logger.debug(f'Process time is: {timedelta(seconds=after - before)}')
+            else:
+                result = func(*args, **kwargs)
             return result
 
         return wrapper

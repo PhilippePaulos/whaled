@@ -1,25 +1,29 @@
 import logging
+import typing
 from abc import ABC, abstractmethod
 
-from model.logger_factory import LoggerFactory
+from model.common.logger_factory import LoggerFactory
+from model.token_trade import TokenTrade
+from scrapping.utils.utils import processing_time
 
 
 class ScanScrapper(ABC):
 
     def __init__(self) -> None:
         super().__init__()
-        self._logger = LoggerFactory().get_logger(logging.DEBUG, log_file='scrapper.log')
+        self._logger = logging.getLogger()
 
     @property
     @abstractmethod
-    def base_url(self):
+    def base_url(self) -> str:
         pass
 
     @abstractmethod
-    def get_trades(self, token_adress: str):
+    @processing_time()
+    def get_trades(self, token_adress: str) -> typing.List[TokenTrade]:
         pass
 
-    def get_trades_url(self, token_adress: str):
+    def get_trades_url(self, token_adress: str) -> str:
         return f'{self.base_url}/token/{token_adress}#tokenTrade'
 
     # save to es ?

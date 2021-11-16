@@ -21,5 +21,3 @@ class TokenTrade:
     def __str__(self) -> str:
         return f'txn_hash: {self.txn_hash}, action: {self.action}, amount_out: {self.amount_out}, ' \
                f'amount_in: {self.amount_in}, value: {self.value}'
-
-

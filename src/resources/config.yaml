@@ -1,0 +1,11 @@
+logging:
+  level: 'debug'
+  file: 'scrapping.log'
+
+trades:
+  blockchain: 'bsc'
+  token_adress: '0x9d12cc56d133fc5c60e9385b7a92f35a682da0bd'
+
+#trades:
+#  blockchain: 'eth'
+#  token_adress: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'

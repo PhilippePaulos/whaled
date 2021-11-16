@@ -1,3 +1,6 @@
+import typing
+from decimal import InvalidOperation
+
 import webdriver_manager.firefox
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -15,11 +18,11 @@ class EtherScanScrapper(ScanScrapper):
         self._base_url = 'https://etherscan.io/'
 
     @property
-    def base_url(self):
+    def base_url(self) -> str:
         return self._base_url
 
     @processing_time()
-    def get_trades(self, token_adress: str):
+    def get_trades(self, token_adress: str) -> typing.List[TokenTrade]:
         s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
         driver = webdriver.Firefox(service=s)
         driver.implicitly_wait(10)
@@ -31,12 +34,16 @@ class EtherScanScrapper(ScanScrapper):
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
             columns = row.find_elements(By.XPATH, './/td')
             action = Action.BUY.value if columns[4].text == Action.BUY else Action.SELL
+            txn_value = -1
+            try:
+                txn_value = get_currency_value(columns[8].text)
+            except InvalidOperation as e:
+                # TODO gérer les cas où txn value est égal à N/A (faire comme pour la bsc, récupérer valeur en live
+                #  du token)
+                self._logger.error(f'Could not convert to decimal value: {columns[8].text}')
             trade = TokenTrade(txn_hash=columns[1].text, action=action, amount_out=columns[5].text,
-                                     amount_in=columns[6].text, value=get_currency_value(columns[8].text))
-            self._logger.debug(f'trade: {trade}')
+                               amount_in=columns[6].text, value=txn_value)
+            self._logger.debug(f'Trade: {trade}')
             trades.append(trade)
+
         return trades
-
-
-if __name__ == '__main__':
-    print(EtherScanScrapper().get_trades('0xB8c77482e45F1F44dE1745F52C74426C631bDD52'))

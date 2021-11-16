@@ -1,3 +1,4 @@
+import typing
 from decimal import Decimal
 
 import webdriver_manager.firefox
@@ -18,11 +19,11 @@ class BscScanScrapper(ScanScrapper):
         self._base_url = 'https://bscscan.com/'
 
     @property
-    def base_url(self):
+    def base_url(self) -> str:
         return self._base_url
 
     @processing_time()
-    def get_trades(self, token_adress: str):
+    def get_trades(self, token_adress: str) -> typing.List[TokenTrade]:
         s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
         driver = webdriver.Firefox(service=s)
         driver.implicitly_wait(10)
@@ -50,7 +51,3 @@ class BscScanScrapper(ScanScrapper):
             self._logger.debug(f'trade: {trade}')
             trades.append(trade)
         return trades
-
-
-if __name__ == '__main__':
-    print(BscScanScrapper().get_trades('0x9d12cc56d133fc5c60e9385b7a92f35a682da0bd'))
