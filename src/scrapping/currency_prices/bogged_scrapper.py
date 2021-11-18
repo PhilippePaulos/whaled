@@ -5,8 +5,6 @@ import webdriver_manager.firefox
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.wait import WebDriverWait
 
 from model.common.singleton import Singleton
 from scrapping.currency_prices.currency_scrapper import CurrencyScrapper
@@ -19,8 +17,8 @@ class ChartInstance(metaclass=Singleton):
         s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
         driver = webdriver.Firefox(service=s)
         driver.get(url)
-        wait = WebDriverWait(driver, 10)
-        self.chart = wait.until(EC.presence_of_element_located((By.XPATH, '//*[@id="chartWrapper"]')))
+        driver.implicitly_wait(10)
+        self.chart = driver.find_element(By.XPATH, '//*[@id="chartWrapper"]')
 
 
 class BoggedScrapper(CurrencyScrapper):
@@ -31,6 +29,7 @@ class BoggedScrapper(CurrencyScrapper):
 
     def get_currency_price(self, token_adress: str) -> Decimal:
         chart_instance = ChartInstance(self.get_token_url(token_adress))
+        # TODO wait element to be clickable
         token_price_str = chart_instance.chart.find_element(By.XPATH,
                                      '//*[@id="chartWrapper"]/div[1]/div[1]/div[1]/div[1]/span/span/div[1]/h4').text
         return utils.get_currency_value(token_price_str)

@@ -7,9 +7,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
 
 from model.action import Action
+from model.common.utils import processing_time
 from model.token_trade import TokenTrade
 from scrapping.dex_trades.trades_scrapper import ScanScrapper
-from scrapping.utils.utils import get_currency_value, processing_time
+from scrapping.utils.utils import get_currency_value
 
 
 class EtherScanScrapper(ScanScrapper):

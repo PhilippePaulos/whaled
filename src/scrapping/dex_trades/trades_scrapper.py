@@ -2,9 +2,8 @@ import logging
 import typing
 from abc import ABC, abstractmethod
 
-from model.common.logger_factory import LoggerFactory
+from model.common.utils import processing_time
 from model.token_trade import TokenTrade
-from scrapping.utils.utils import processing_time
 
 
 class ScanScrapper(ABC):
@@ -29,6 +28,7 @@ class ScanScrapper(ABC):
     # save to es ?
     def save_trades(self):
         pass
+
 
     # send trades to kafka ?
     def send_trades(self):

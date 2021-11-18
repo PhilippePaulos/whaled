@@ -1,12 +1,9 @@
-import os
+# Default values (overrided by trades.yaml)
+# Logging
 import sys
 
 import yaml
 
-from definitions import ROOT_DIR
-
-# Default values (overrided by config.yaml)
-# Logging
 logging_level = 'INFO'
 logging_file = None
 
@@ -15,8 +12,8 @@ trades_token_adress = None
 trades_blockchain = 'bsc'
 
 
-def load_settings():
-    with open(os.path.join(ROOT_DIR, "resources/config.yaml"), "r") as stream:
+def load_settings(settings_path):
+    with open(settings_path, "r") as stream:
         try:
             config_data = yaml.safe_load(stream)
             for module in config_data:
