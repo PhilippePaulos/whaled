@@ -13,4 +13,4 @@ class BoggedScrapperTest(TestCase):
         token_html_path = pathlib.Path('resources/prices/bogged/bogged_token.html').resolve()
         mock_get_token_url.return_value = f'file://{token_html_path}'
         token_price = BoggedScrapper().get_currency_price('0x9D12CC56d133Fc5c60E9385B7A92F35a682da0bd')
-        self.assertTrue(token_price == Decimal('0.0128340'))
+        self.assertTrue(token_price.price == Decimal('0.0128340'))
