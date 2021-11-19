@@ -2,9 +2,8 @@ logging:
   level: 'debug'
   file: 'scrapping.log'
 
-trades:
-  blockchain: 'bsc'
-  token_adress: '0x9d12cc56d133fc5c60e9385b7a92f35a682da0bd'
+blockchain: 'bsc'
+token_adress: '0x9d12cc56d133fc5c60e9385b7a92f35a682da0bd'
 
 #trades:
 #  blockchain: 'eth'

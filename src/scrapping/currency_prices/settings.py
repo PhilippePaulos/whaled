@@ -8,8 +8,9 @@ logging_level = 'INFO'
 logging_file = None
 
 # prices_scrapper
-prices_token_adress = None
-prices_blockchain = 'bsc'
+token_adress = None
+blockchain = 'bsc'
+check_interval = 10
 
 
 def load_settings(settings_path):
@@ -17,7 +18,10 @@ def load_settings(settings_path):
         try:
             config_data = yaml.safe_load(stream)
             for module in config_data:
-                for key, value in config_data[module].items():
-                    setattr(sys.modules[__name__], f'{module}_{key}', config_data[module][key])
+                if type(config_data[module]) is dict:
+                    for key, value in config_data[module].items():
+                        setattr(sys.modules[__name__], f'{module}_{key}', config_data[module][key])
+                else:
+                    setattr(sys.modules[__name__], f'{module}', config_data[module])
         except yaml.YAMLError as exc:
             print(exc)

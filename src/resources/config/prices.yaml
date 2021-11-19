@@ -2,6 +2,6 @@ logging:
   level: 'info'
   file: 'prices.log'
 
-prices:
-  blockchain: 'bsc'
-  token_adress: '0x9D12CC56d133Fc5c60E9385B7A92F35a682da0bd'
+blockchain: 'bsc'
+token_adress: '0x9D12CC56d133Fc5c60E9385B7A92F35a682da0bd'
+check_interval: 20

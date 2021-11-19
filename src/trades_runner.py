@@ -12,12 +12,12 @@ def run():
     args = parse_command_line()
     load_settings(args.config_path)
     setup_log(settings.logging_level, settings.logging_file)
-    if settings.trades_blockchain.upper() in ['BSC', 'BINANCE']:
-        print(BscScanScrapper().get_trades(settings.trades_token_adress))
-    elif settings.trades_blockchain.upper() in ['ETHER', 'ETH', 'ETHERUM']:
-        print(EtherScanScrapper().get_trades(settings.trades_token_adress))
+    if settings.blockchain.upper() in ['BSC', 'BINANCE']:
+        print(BscScanScrapper().get_trades(settings.token_adress))
+    elif settings.blockchain.upper() in ['ETHER', 'ETH', 'ETHERUM']:
+        print(EtherScanScrapper().get_trades(settings.token_adress))
     else:
-        raise ValueError(f'Could not identify blockchain type: {settings.trades_blockchain}')
+        raise ValueError(f'Could not identify blockchain type: {settings.blockchain}')
 
 
 def parse_command_line():
