@@ -40,13 +40,10 @@ class BoggedScrapper(CurrencyScrapper):
 
     def get_currency_price(self, token_adress: str) -> TokenPrice:
         chart_instance = ChartInstance(self.get_token_url(token_adress))
-        token_price = TokenPrice(utils.get_currency_value(chart_instance.get_price_str()), datetime.now())
+        token_price = TokenPrice(utils.get_currency_value(chart_instance.get_price_str()),
+                                 datetime.now())
         logging.info(token_price)
         return token_price
 
     def get_token_url(self, token_adress: str) -> str:
         return os.path.join(f"{self.base_url}/{token_adress}")
-
-
-if __name__ == '__main__':
-    BoggedScrapper().get_currency_price('0x9D12CC56d133Fc5c60E9385B7A92F35a682da0bd')

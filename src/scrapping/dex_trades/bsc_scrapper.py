@@ -26,21 +26,32 @@ class BscScanScrapper(ScanScrapper):
 
     @processing_time()
     def get_trades(self, token_adress: str) -> typing.List[TokenTrade]:
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [
+                executor.submit(self.get_token_price, token_adress),
+                executor.submit(self.get_trades_from_html, token_adress)
+            ]
+            token_price = futures[0].result()
+            trades: typing.List[TokenTrade] = futures[1].result()
+        for trade in trades:
+            trade.value = token_price.price * trade.amount
+        return trades
+
+    def get_trades_from_html(self, token_adress) -> typing.List[TokenTrade]:
         s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
         driver = webdriver.Firefox(service=s)
         driver.implicitly_wait(10)
-        # TODO load token driver & bogged driver in two different threads
         driver.get(self.get_trades_url(token_adress))
         iframe = driver.find_element(By.XPATH, '//*[@id="dextrackeriframe"]')
         driver.switch_to.frame(iframe)
-
         table = driver.find_element(By.XPATH, '//*[@class="table-responsive"]/table')
-        token_price = BoggedScrapper().get_currency_price(token_adress)
         trades = []
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
             columns = row.find_elements(By.XPATH, './/td')
             maker_adress = columns[3].find_element(By.XPATH, './/a').get_attribute('href').split('/')[-1]
             taker_adress = columns[5].find_element(By.XPATH, './/a').get_attribute('href').split('/')[-1]
+            amount = Decimal('0')
             if maker_adress == token_adress:
                 action = Action.SELL.value
                 amount = Decimal(get_currency_value(columns[3].text))
@@ -51,7 +62,12 @@ class BscScanScrapper(ScanScrapper):
                 self._logger.warning('Could not get action type')
                 action = Action.UNKNOWN.value
             trade = TokenTrade(txn_hash=columns[0].text, action=action, amount=amount, amount_out=columns[3].text,
-                               amount_in=columns[5].text, value=token_price.price * amount)
+                               amount_in=columns[5].text)
             self._logger.debug(f'trade: {trade}')
             trades.append(trade)
         return trades
+
+    @staticmethod
+    def get_token_price(token_adress):
+        token_price = BoggedScrapper().get_currency_price(token_adress)
+        return token_price
