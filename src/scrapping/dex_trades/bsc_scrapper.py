@@ -9,7 +9,9 @@ from selenium.webdriver.firefox.service import Service
 from model.action import Action
 from model.common.utils import processing_time
 from model.token_trade import TokenTrade
+from scrapping.currency_prices.bogged_scrapper import BoggedScrapper
 from scrapping.dex_trades.trades_scrapper import ScanScrapper
+from scrapping.utils.utils import get_currency_value
 
 
 class BscScanScrapper(ScanScrapper):
@@ -27,27 +29,29 @@ class BscScanScrapper(ScanScrapper):
         s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
         driver = webdriver.Firefox(service=s)
         driver.implicitly_wait(10)
+        # TODO load token driver & bogged driver in two different threads
         driver.get(self.get_trades_url(token_adress))
         iframe = driver.find_element(By.XPATH, '//*[@id="dextrackeriframe"]')
         driver.switch_to.frame(iframe)
 
         table = driver.find_element(By.XPATH, '//*[@class="table-responsive"]/table')
-
+        token_price = BoggedScrapper().get_currency_price(token_adress)
         trades = []
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
             columns = row.find_elements(By.XPATH, './/td')
             maker_adress = columns[3].find_element(By.XPATH, './/a').get_attribute('href').split('/')[-1]
             taker_adress = columns[5].find_element(By.XPATH, './/a').get_attribute('href').split('/')[-1]
             if maker_adress == token_adress:
-                action = Action.SELL
+                action = Action.SELL.value
+                amount = Decimal(get_currency_value(columns[3].text))
             elif taker_adress == token_adress:
-                action = Action.BUY
+                action = Action.BUY.value
+                amount = Decimal(get_currency_value(columns[5].text))
             else:
                 self._logger.warning('Could not get action type')
-                action = Action.UNKNOWN
-            # TODO get currency value from bogged scrapper (in different thread)
-            trade = TokenTrade(txn_hash=columns[0].text, action=action, amount_out=columns[3].text,
-                               amount_in=columns[5].text, value=Decimal('0'))
+                action = Action.UNKNOWN.value
+            trade = TokenTrade(txn_hash=columns[0].text, action=action, amount=amount, amount_out=columns[3].text,
+                               amount_in=columns[5].text, value=token_price.price * amount)
             self._logger.debug(f'trade: {trade}')
             trades.append(trade)
         return trades

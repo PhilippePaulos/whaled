@@ -34,16 +34,30 @@ class EtherScanScrapper(ScanScrapper):
         trades = []
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
             columns = row.find_elements(By.XPATH, './/td')
-            action = Action.BUY.value if columns[4].text == Action.BUY else Action.SELL
+            amount_out = columns[5].text
+            amount_in = columns[6].text
+            action_str = columns[4].text.upper()
+            if action_str == Action.BUY.name:
+                action = Action.BUY.value
+                amount = get_currency_value(amount_in)
+            elif action_str == Action.SELL.name:
+                action = Action.SELL.value
+                amount = get_currency_value(amount_out)
+            else:
+                self._logger.warning('Could not get action type')
+                action = Action.UNKNOWN.value
+                # TODO checker comment ça marche avec une action de type swap
+                amount = get_currency_value(amount_in)
             txn_value = -1
             try:
                 txn_value = get_currency_value(columns[8].text)
-            except InvalidOperation as e:
+            except InvalidOperation:
                 # TODO gérer les cas où txn value est égal à N/A (faire comme pour la bsc, récupérer valeur en live
                 #  du token)
                 self._logger.error(f'Could not convert to decimal value: {columns[8].text}')
-            trade = TokenTrade(txn_hash=columns[1].text, action=action, amount_out=columns[5].text,
-                               amount_in=columns[6].text, value=txn_value)
+
+            trade = TokenTrade(txn_hash=columns[1].text, action=action, amount=amount, amount_out=amount_out,
+                               amount_in=amount_in, value=txn_value)
             self._logger.debug(f'Trade: {trade}')
             trades.append(trade)
 
