@@ -15,7 +15,6 @@ from scrapping.utils import utils
 
 
 class ChartInstance(metaclass=Singleton):
-
     _logger = logging.getLogger()
 
     def __init__(self, url: str):

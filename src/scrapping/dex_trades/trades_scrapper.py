@@ -17,6 +17,9 @@ class ScanScrapper(ABC):
     def base_url(self) -> str:
         pass
 
+    def process(self, settings):
+        print(self.get_trades(settings.token_adress))
+
     @abstractmethod
     @processing_time()
     def get_trades(self, token_adress: str) -> typing.List[TokenTrade]:

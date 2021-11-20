@@ -1,4 +1,5 @@
 import logging
+from argparse import ArgumentParser
 from datetime import timedelta
 from timeit import default_timer
 
@@ -21,3 +22,8 @@ def processing_time():
 
     return decorator
 
+
+def parse_command_line():
+    parser = ArgumentParser()
+    parser.add_argument('-c', '--config', dest='config_path', help='path to the job configuration', metavar='FILE')
+    return parser.parse_args()
