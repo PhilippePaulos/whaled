@@ -1,1 +1,2 @@
 test/resources linguist-vendored
+resources/trades/bscscan/token_trades_files/* linguist-vendored
