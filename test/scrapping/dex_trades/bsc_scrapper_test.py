@@ -11,7 +11,7 @@ from scrapping.dex_trades.bsc_scrapper import BscScanScrapper
 class BscScanScrapperTest(TestCase):
 
     @patch('scrapping.dex_trades.bsc_scrapper.BscScanScrapper.get_trades_url')
-    @patch('scrapping.currency_prices.bogged_scrapper.BoggedScrapper.get_token_url')
+    @patch('scrapping.currency.bogged_scrapper.BoggedScrapper.get_token_url')
     def test_scrap(self, mock_get_token_url, mock_get_trades_url):
         token_html_path = pathlib.Path('resources/prices/bogged/bogged_token.html').resolve()
         mock_get_token_url.return_value = f'file://{token_html_path}'
