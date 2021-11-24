@@ -9,7 +9,7 @@ from selenium.webdriver.firefox.service import Service
 from model.action import Action
 from model.common.utils import processing_time
 from model.token_trade import TokenTrade
-from scrapping.currency_prices.bogged_scrapper import BoggedScrapper
+from scrapping.currency.bogged_scrapper import BoggedScrapper
 from scrapping.dex_trades.trades_scrapper import ScanScrapper
 from scrapping.utils.utils import get_currency_value
 
@@ -29,13 +29,13 @@ class BscScanScrapper(ScanScrapper):
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
-                executor.submit(self.get_token_price, token_adress),
+                executor.submit(self.get_token_info, token_adress),
                 executor.submit(self.get_trades_from_html, token_adress)
             ]
-            token_price = futures[0].result()
+            token_info = futures[0].result()
             trades: typing.List[TokenTrade] = futures[1].result()
         for trade in trades:
-            trade.value = token_price.price * trade.amount
+            trade.value = token_info.price * trade.amount
         return trades
 
     def get_trades_from_html(self, token_adress) -> typing.List[TokenTrade]:
@@ -68,6 +68,6 @@ class BscScanScrapper(ScanScrapper):
         return trades
 
     @staticmethod
-    def get_token_price(token_adress):
-        token_price = BoggedScrapper().get_currency_price(token_adress)
+    def get_token_info(token_adress):
+        token_price = BoggedScrapper(token_adress, load_marketcap=False).get_token_info()
         return token_price
