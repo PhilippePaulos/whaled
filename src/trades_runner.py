@@ -13,7 +13,7 @@ def run():
     # TODO use factory pattern
     if settings.blockchain.upper() in ['BSC', 'BINANCE']:
         BscScanScrapper().process(settings)
-    elif settings.blockchain.upper() in ['ETHER', 'ETH', 'ETHERUM']:
+    elif settings.blockchain.upper() in ['ETHER', 'ETH', 'ETHEREUM']:
         EtherScanScrapper().process(settings)
     else:
         raise ValueError(f'Could not identify blockchain type: {settings.blockchain}')

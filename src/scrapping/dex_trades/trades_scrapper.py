@@ -31,8 +31,3 @@ class ScanScrapper(ABC):
     # save to es ?
     def save_trades(self):
         pass
-
-
-    # send trades to kafka ?
-    def send_trades(self):
-        pass

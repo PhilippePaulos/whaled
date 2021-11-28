@@ -12,6 +12,9 @@ token_adress = None
 blockchain = 'bsc'
 check_interval = 10
 
+output_format = 'csv'
+output_path = None
+
 
 def load_settings(settings_path):
     with open(settings_path, "r") as stream:
