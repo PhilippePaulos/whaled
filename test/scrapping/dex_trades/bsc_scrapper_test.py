@@ -18,7 +18,7 @@ class BscScanScrapperTest(TestCase):
         trades_html_path = pathlib.Path('resources/trades/bscscan/token_trades.html').resolve()
         mock_get_trades_url.return_value = f'file://{trades_html_path}'
 
-        trades_list = BscScanScrapper().get_trades('0x2859e4544c4bb03966803b044a93563bd2d0dd4d')
+        trades_list = BscScanScrapper('0x2859e4544c4bb03966803b044a93563bd2d0dd4d').get_trades()
         self.assertTrue(len(trades_list) == 25)
         self.assertTrue(
             trades_list[0] == TokenTrade(txn_hash='0xa0ec390af06c29592d1d776fd2e3f954a69801aa55b735a59cfafa73fcac47bd',

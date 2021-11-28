@@ -27,7 +27,7 @@ class BoggedScrapperTest(TestCase):
 
         with tempfile.TemporaryDirectory() as d:
             output_path = os.path.join(d, 'outputs')
-            BoggedScrapper.save_csv(output_path, token_info)
+            BoggedScrapper.save_csv(output_path, [token_info])
             with open(output_path, 'r') as output_file:
                 reader = csv.reader(output_file, delimiter=';')
                 row = reader.__next__()

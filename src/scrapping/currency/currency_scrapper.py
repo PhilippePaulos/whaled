@@ -1,14 +1,15 @@
-import csv
 import logging
 import time
-from abc import ABC, abstractmethod
+import typing
+from abc import abstractmethod
 from decimal import Decimal
 
 from model.common.output import OutputFormats
+from model.common.writter import OutputWritter
 from model.token_info import TokenInfo
 
 
-class CurrencyScrapper(ABC):
+class CurrencyScrapper(OutputWritter):
 
     def __init__(self, token_adress: str, check_interval=0, output_format='', output_path='') -> None:
         super().__init__()
@@ -20,8 +21,8 @@ class CurrencyScrapper(ABC):
 
     def process(self) -> None:
         while True:
-            token_info = self.get_token_info()
-            self.save(token_info)
+            token_infos = [self.get_token_info()]
+            self.save(token_infos)
             self._logger.info(f'waiting (check interval={self.check_interval})...')
             time.sleep(self.check_interval)
 
@@ -41,14 +42,8 @@ class CurrencyScrapper(ABC):
     def get_token_url(self, token_adress: str) -> str:
         pass
 
-    def save(self, token_info):
+    def save(self, token_infos: typing.List[TokenInfo]):
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
-            self.save_csv(self.output_path, token_info)
+            self.save_csv(self.output_path, token_infos)
         else:
             raise NotImplemented(self.output_format)
-
-    @staticmethod
-    def save_csv(path: str, token_info: TokenInfo):
-        with open(path, 'a') as f:
-            writer = csv.writer(f, delimiter=';')
-            writer.writerow([token_info.price, token_info.marketcap, token_info.datetime])

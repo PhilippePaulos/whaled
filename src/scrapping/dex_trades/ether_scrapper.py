@@ -14,8 +14,8 @@ from scrapping.utils.utils import get_currency_value
 
 
 class EtherScanScrapper(ScanScrapper):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, token_adress:str, output_format=None, output_path=None) -> None:
+        super().__init__(token_adress, output_format, output_path)
         self._base_url = 'https://etherscan.io/'
 
     @property
@@ -23,11 +23,11 @@ class EtherScanScrapper(ScanScrapper):
         return self._base_url
 
     @processing_time()
-    def get_trades(self, token_adress: str) -> typing.List[TokenTrade]:
+    def get_trades(self) -> typing.List[TokenTrade]:
         s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
         driver = webdriver.Firefox(service=s)
         driver.implicitly_wait(10)
-        driver.get(self.get_trades_url(token_adress))
+        driver.get(self.get_trades_url(self.token_adress))
         iframe = driver.find_element(By.XPATH, '//*[@id="dextrackeriframe"]')
         driver.switch_to.frame(iframe)
         table = driver.find_element(By.XPATH, '//*[@class="table-responsive"]/table')

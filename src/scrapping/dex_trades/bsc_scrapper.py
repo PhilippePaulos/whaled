@@ -16,8 +16,8 @@ from scrapping.utils.utils import get_currency_value
 
 class BscScanScrapper(ScanScrapper):
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, token_adress: str, output_format=None, output_path=None) -> None:
+        super().__init__(token_adress, output_format, output_path)
         self._base_url = 'https://bscscan.com/'
 
     @property
@@ -25,12 +25,12 @@ class BscScanScrapper(ScanScrapper):
         return self._base_url
 
     @processing_time()
-    def get_trades(self, token_adress: str) -> typing.List[TokenTrade]:
+    def get_trades(self) -> typing.List[TokenTrade]:
         import concurrent.futures
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
-                executor.submit(self.get_token_info, token_adress),
-                executor.submit(self.get_trades_from_html, token_adress)
+                executor.submit(self.get_token_info, self.token_adress),
+                executor.submit(self.get_trades_from_html, self.token_adress)
             ]
             token_info = futures[0].result()
             trades: typing.List[TokenTrade] = futures[1].result()

@@ -1,4 +1,6 @@
+import csv
 import logging
+import typing
 from argparse import ArgumentParser
 from datetime import timedelta
 from timeit import default_timer
@@ -27,3 +29,14 @@ def parse_command_line():
     parser = ArgumentParser()
     parser.add_argument('-c', '--config', dest='config_path', help='path to the job configuration', metavar='FILE')
     return parser.parse_args()
+
+
+def export_objects_to_csv(path: str, instance_list: typing.List[object], mode='a', delimiter=';'):
+    with open(path, mode) as f:
+        writer = csv.writer(f, delimiter=delimiter)
+        rows = []
+        for instance in instance_list:
+            object_dict = instance.__dict__
+            values = [object_dict[attr] for attr in object_dict]
+            rows.append(values)
+        writer.writerows(rows)

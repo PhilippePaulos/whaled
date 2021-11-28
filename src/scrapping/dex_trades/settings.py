@@ -11,6 +11,9 @@ logging_file = None
 token_adress = None
 blockchain = 'bsc'
 
+output_format = 'csv'
+output_path = 'trades.csv'
+
 
 def load_settings(settings_path):
     with open(settings_path, "r") as stream:
