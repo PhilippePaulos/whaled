@@ -69,5 +69,5 @@ class BscScanScrapper(ScanScrapper):
 
     @staticmethod
     def get_token_info(token_adress):
-        token_price = BoggedScrapper(token_adress, load_marketcap=False).get_token_info()
+        token_price = BoggedScrapper(token_adress, load_marketcap=False).get_token_info(token_adress)
         return token_price

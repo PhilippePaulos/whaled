@@ -14,20 +14,28 @@ class CurrencyScrapper(OutputWritter):
     def __init__(self, token_adress: str, check_interval=0, output_format='', output_path='') -> None:
         super().__init__()
         self._logger = logging.getLogger()
-        self.token_adress = token_adress
+        self._token_adress = token_adress
         self.check_interval = check_interval
         self.output_format = output_format
         self.output_path = output_path
 
+    @property
+    def token_adress(self):
+        return self._token_adress
+
+    @token_adress.setter
+    def token_adress(self, value):
+        self._token_adress = value
+
     def process(self) -> None:
         while True:
-            token_infos = [self.get_token_info()]
+            token_infos = [self.get_token_info(self.token_adress)]
             self.save(token_infos)
             self._logger.info(f'waiting (check interval={self.check_interval})...')
             time.sleep(self.check_interval)
 
     @abstractmethod
-    def get_token_info(self) -> TokenInfo:
+    def get_token_info(self, token_adress) -> TokenInfo:
         pass
 
     @abstractmethod

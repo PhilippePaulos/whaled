@@ -20,10 +20,12 @@ class ChartInstance(metaclass=Singleton):
 
     def __init__(self, url: str, load_marketcap=True):
         s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
-        driver = webdriver.Firefox(service=s)
-        driver.get(url)
-        driver.implicitly_wait(10)
-        self.driver = driver
+        self.driver = webdriver.Firefox(service=s)
+        self.load_chart(url, load_marketcap)
+
+    def load_chart(self, url, load_marketcap=True):
+        self.driver.get(url)
+        self.driver.implicitly_wait(10)
         while utils.get_currency_value(self.get_price_str()) == Decimal('0'):
             self.__logger.info('Waiting price loading')
             time.sleep(1)
@@ -48,7 +50,9 @@ class BoggedScrapper(CurrencyScrapper):
         self.base_url = 'https://charts.bogged.finance'
         self.chart_instance = ChartInstance(self.get_token_url(self.token_adress), load_marketcap)
 
-    def get_token_info(self) -> TokenInfo:
+    def get_token_info(self, token_adress) -> TokenInfo:
+        if self.token_adress != token_adress:
+            self.chart_instance.load_chart(self.get_token_url(token_adress))
         token_info = TokenInfo(utils.get_currency_value(self.chart_instance.get_price_str()), self.get_currency_mcap(),
                                datetime.now())
         self._logger.info(token_info)

@@ -1,4 +1,7 @@
+import csv
+import os
 import pathlib
+import tempfile
 from decimal import Decimal
 from unittest import TestCase
 from unittest.mock import patch
@@ -26,3 +29,20 @@ class BscScanScrapperTest(TestCase):
                                          amount_in='535664.913904223 SHIB', amount_out='0.0555153483551779 WBNB',
                                          value=Decimal('25.9963003701944559907'))
         )
+
+    def test_save_csv(self):
+        token_trade = TokenTrade(txn_hash='0xa0ec390af06c29592d1d776fd2e3f954a69801aa55b735a59cfafa73fcac47bd',
+                                 action=Action.BUY.value, amount=Decimal('535664.913904223'),
+                                 amount_in='535664.913904223 SHIB', amount_out='0.0555153483551779 WBNB',
+                                 value=Decimal('25.9963003701944559907'))
+
+        with tempfile.TemporaryDirectory() as d:
+            output_path = os.path.join(d, 'outputs')
+            BscScanScrapper.save_csv(output_path, [token_trade])
+            with open(output_path, 'r') as output_file:
+                reader = csv.reader(output_file, delimiter=';')
+                row = reader.__next__()
+                self.assertTrue(TokenTrade(row[0], int(row[1]), Decimal(row[2]), row[3], row[4], Decimal(row[5])) ==
+                                token_trade)
+
+

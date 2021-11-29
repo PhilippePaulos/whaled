@@ -5,7 +5,7 @@ from model.action import Action
 
 class TokenTrade:
 
-    def __init__(self, txn_hash: str, action: Action, amount: Decimal, amount_out: str, amount_in: str,
+    def __init__(self, txn_hash: str, action: int, amount: Decimal, amount_out: str, amount_in: str,
                  value: Decimal = Decimal('0')) -> None:
         self.txn_hash = txn_hash
         self.action = action
