@@ -13,6 +13,8 @@ blockchain = 'bsc'
 
 output_format = 'csv'
 output_path = 'trades.csv'
+history = False
+check_interval = 30
 
 
 def load_settings(settings_path):

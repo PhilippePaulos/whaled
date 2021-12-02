@@ -1,0 +1,2 @@
+jQuery(document).ready(function(){function handleSearch(){jQuery('.search').click(function(){if(jQuery('.search-btn').hasClass('fa-search')){jQuery('.search-open').fadeIn(500);jQuery('.search-btn').removeClass('fa-search');jQuery('.search-btn').addClass('fa-times');}else{jQuery('.search-open').fadeOut(500);jQuery('.search-btn').addClass('fa-search');jQuery('.search-btn').removeClass('fa-times');}});}
+return{init:function(){handleSearch();}};});

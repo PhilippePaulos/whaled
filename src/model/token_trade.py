@@ -1,7 +1,5 @@
 from decimal import Decimal
 
-from model.action import Action
-
 
 class TokenTrade:
 

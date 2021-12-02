@@ -1,36 +1,45 @@
 import typing
 from decimal import InvalidOperation
+from telnetlib import EC
 
-import webdriver_manager.firefox
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.wait import WebDriverWait
 
 from model.action import Action
 from model.common.utils import processing_time
 from model.token_trade import TokenTrade
 from scrapping.dex_trades.trades_scrapper import ScanScrapper
 from scrapping.utils.utils import get_currency_value
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class EtherScanScrapper(ScanScrapper):
-    def __init__(self, token_adress:str, output_format=None, output_path=None) -> None:
-        super().__init__(token_adress, output_format, output_path)
-        self._base_url = 'https://etherscan.io/'
+
+    def __init__(self, token_adress:str, check_interval=None, output_format=None, output_path=None) -> None:
+        super().__init__(token_adress, check_interval, output_format, output_path)
+        iframe = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="txnsiframe"]')
+        self.driver_instance.driver.switch_to.frame(iframe)
+        wait = WebDriverWait(self.driver_instance.driver, 10)
+        # wait until overlay is invisible so we can click on the select element
+        wait.until(EC.invisibility_of_element_located((By.XPATH, '//*[@id="overlay"]')))
+        select_element = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="ddlRecordsPerPage"]')
+        Select(select_element).select_by_value(str(self.MAX_NUM_TRADES))
 
     @property
     def base_url(self) -> str:
-        return self._base_url
+        return 'https://etherscan.io/'
+
+    def get_trades_url(self) -> str:
+        return f'{self.base_url}dex?q={self.token_adress}#transactions'
 
     @processing_time()
-    def get_trades(self) -> typing.List[TokenTrade]:
-        s = Service(webdriver_manager.firefox.GeckoDriverManager().install())
-        driver = webdriver.Firefox(service=s)
-        driver.implicitly_wait(10)
-        driver.get(self.get_trades_url(self.token_adress))
-        iframe = driver.find_element(By.XPATH, '//*[@id="dextrackeriframe"]')
-        driver.switch_to.frame(iframe)
-        table = driver.find_element(By.XPATH, '//*[@class="table-responsive"]/table')
+    def get_last_trades(self) -> typing.List[TokenTrade]:
+        return self.get_trades_from_page()
+
+    def get_trades_from_page(self):
+
+        table = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="doneloadingframe"]/div[3]/table')
         trades = []
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
             columns = row.find_elements(By.XPATH, './/td')
@@ -62,3 +71,14 @@ class EtherScanScrapper(ScanScrapper):
             trades.append(trade)
 
         return trades
+
+    def move_to_next_page(self):
+        next_page_link_element = self.driver_instance.driver.find_element(By.XPATH,
+                                                                  '//*[@id="doneloadingframe"]/div[2]/nav/ul/li[4]/a')
+        self.driver_instance.driver.execute_script("arguments[0].scrollIntoView(true);", next_page_link_element)
+        next_page_link_element.click()
+
+    def get_last_page_number(self) -> int:
+        last_page = int(
+            self.driver_instance.driver.find_element(By.XPATH, '//*[@id="ctl07"]/div[3]/ul/li[3]/span/strong[2]').text)
+        return last_page

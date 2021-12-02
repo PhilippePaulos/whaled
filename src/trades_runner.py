@@ -12,9 +12,14 @@ def run():
     setup_log(settings.logging_level, settings.logging_file)
     # TODO use factory pattern
     if settings.blockchain.upper() in ['BSC', 'BINANCE']:
-        BscScanScrapper(settings.token_adress, settings.output_format, settings.output_path).process()
+        BscScanScrapper(settings.token_adress, check_interval=settings.check_interval,
+                        output_format=settings.output_format, output_path=settings.output_path) \
+            .process(settings.history)
     elif settings.blockchain.upper() in ['ETHER', 'ETH', 'ETHEREUM']:
-        EtherScanScrapper(settings.token_adress, settings.output_format, settings.output_path).process()
+        EtherScanScrapper(settings.token_adress, check_interval=settings.check_interval,
+                          output_format=settings.output_format,
+                          output_path=settings.output_path) \
+            .process(settings.history)
     else:
         raise ValueError(f'Could not identify blockchain type: {settings.blockchain}')
 

@@ -11,3 +11,5 @@ token_adress: '0xB09FE1613fE03E7361319d2a43eDc17422f36B09'
 output:
   format: 'csv'
   path: 'trades_infos.csv'
+
+history: True
