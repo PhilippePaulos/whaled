@@ -8,4 +8,4 @@ check_interval: 20
 
 output:
   format: 'csv'
-  path: 'token_infos.csv'
+  path: '/home/yims'

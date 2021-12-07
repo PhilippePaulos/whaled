@@ -1,4 +1,5 @@
 import logging
+import os.path
 import time
 import typing
 from abc import abstractmethod
@@ -11,7 +12,7 @@ from model.token_info import TokenInfo
 
 class CurrencyScrapper(OutputWritter):
 
-    def __init__(self, token_adress: str, check_interval=0, output_format='', output_path='') -> None:
+    def __init__(self, token_adress: str, check_interval=0, output_format='', output_path=None) -> None:
         super().__init__()
         self._logger = logging.getLogger()
         self._token_adress = token_adress
@@ -35,7 +36,7 @@ class CurrencyScrapper(OutputWritter):
             time.sleep(self.check_interval)
 
     @abstractmethod
-    def get_token_info(self, token_adress) -> TokenInfo:
+    def get_token_info(self, token_adress, load_marketcap=True) -> TokenInfo:
         pass
 
     @abstractmethod
@@ -52,6 +53,6 @@ class CurrencyScrapper(OutputWritter):
 
     def save(self, token_infos: typing.List[TokenInfo]):
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
-            self.save_csv(self.output_path, token_infos)
+            self.save_csv(os.path.join(self.output_path, f'token_info_{self.token_adress}.csv'), token_infos)
         else:
             raise NotImplemented(self.output_format)

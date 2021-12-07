@@ -1,17 +1,16 @@
-import typing
 from decimal import InvalidOperation
 from telnetlib import EC
+from typing import Tuple, List
 
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from model.action import Action
-from model.common.utils import processing_time
 from model.token_trade import TokenTrade
 from scrapping.dex_trades.trades_scrapper import ScanScrapper
 from scrapping.utils.utils import get_currency_value
-from selenium.webdriver.support import expected_conditions as EC
 
 
 class EtherScanScrapper(ScanScrapper):
@@ -33,12 +32,7 @@ class EtherScanScrapper(ScanScrapper):
     def get_trades_url(self) -> str:
         return f'{self.base_url}dex?q={self.token_adress}#transactions'
 
-    @processing_time()
-    def get_last_trades(self) -> typing.List[TokenTrade]:
-        return self.get_trades_from_page()
-
-    def get_trades_from_page(self):
-
+    def get_trades_from_page(self, last_trade_txn=None) -> Tuple[List[TokenTrade], bool]:
         table = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="doneloadingframe"]/div[3]/table')
         trades = []
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
@@ -67,10 +61,13 @@ class EtherScanScrapper(ScanScrapper):
 
             trade = TokenTrade(txn_hash=columns[1].text, action=action, amount=amount, amount_out=amount_out,
                                amount_in=amount_in, value=txn_value)
+            if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
+                self._logger.info(f'{trade.txn_hash} already saved')
+                self._logger.info('End transaction fetching...')
+                return trades, True
             self._logger.debug(f'Trade: {trade}')
             trades.append(trade)
-
-        return trades
+        return trades, False
 
     def move_to_next_page(self):
         next_page_link_element = self.driver_instance.driver.find_element(By.XPATH,

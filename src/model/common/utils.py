@@ -1,6 +1,8 @@
 import csv
 import logging
+import os.path
 import typing
+import uuid
 from argparse import ArgumentParser
 from datetime import timedelta
 from timeit import default_timer
@@ -40,3 +42,15 @@ def export_objects_to_csv(path: str, instance_list: typing.List[object], mode='a
             values = [object_dict[attr] for attr in object_dict]
             rows.append(values)
         writer.writerows(rows)
+
+
+def prepend_objects_to_csv(path: str, instance_list: typing.List[object], delimiter=';'):
+    if not os.path.exists(path):
+        export_objects_to_csv(path, instance_list, mode='w', delimiter=delimiter)
+    elif len(instance_list) > 0:
+        tmp_file_name = str(uuid.uuid4())
+        with open(path, 'r') as read_f:
+            export_objects_to_csv(tmp_file_name, instance_list, mode='w')
+            with open(tmp_file_name, 'a+') as write_f:
+                write_f.write(read_f.read())
+        os.rename(tmp_file_name, path)

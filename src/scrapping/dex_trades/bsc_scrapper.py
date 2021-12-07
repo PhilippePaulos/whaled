@@ -1,11 +1,11 @@
 import concurrent.futures
 import typing
 from decimal import Decimal
+from typing import Tuple, List
 
 from selenium.webdriver.common.by import By
 
 from model.action import Action
-from model.common.utils import processing_time
 from model.token_trade import TokenTrade
 from scrapping.currency.bogged_scrapper import BoggedScrapper
 from scrapping.dex_trades.trades_scrapper import ScanScrapper
@@ -24,20 +24,21 @@ class BscScanScrapper(ScanScrapper):
     def get_trades_url(self) -> str:
         return f'{self.base_url}/dextracker?q={self.token_adress}&ps={self.MAX_NUM_TRADES}'
 
-    @processing_time()
-    def get_last_trades(self) -> typing.List[TokenTrade]:
+    def get_trades_with_price(self, price, last_trade_txn=None) -> Tuple[List[TokenTrade], bool, Decimal]:
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            futures = [
-                executor.submit(self.get_token_info),
-                executor.submit(self.get_trades_from_page)
-            ]
-            token_info = futures[0].result()
-            trades: typing.List[TokenTrade] = futures[1].result()
+            futures = [executor.submit(self.get_trades_from_page, last_trade_txn)]
+            if price is None:
+                futures.append(executor.submit(self.get_token_info))
+                token_info = futures[1].result()
+            trades: typing.List[TokenTrade] = futures[0].result()[0]
+            match = futures[0].result()[1]
+        if price is None:
+            price = token_info.price
         for trade in trades:
-            trade.value = token_info.price * trade.amount
-        return trades
+            trade.value = price * trade.amount
+        return trades, match, price
 
-    def get_trades_from_page(self) -> typing.List[TokenTrade]:
+    def get_trades_from_page(self, last_trade_txn=None) -> typing.Tuple[typing.List[TokenTrade], bool]:
         driver = self.driver_instance.driver
         table = driver.find_element(By.XPATH, '//*[@id="content"]/div[2]/div/div[2]/div[2]/table')
         trades = []
@@ -57,13 +58,17 @@ class BscScanScrapper(ScanScrapper):
                 action = Action.UNKNOWN.value
             trade = TokenTrade(txn_hash=columns[0].text, action=action, amount=amount, amount_out=columns[2].text,
                                amount_in=columns[4].text)
+            if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
+                self._logger.info(f'{trade.txn_hash} already saved')
+                self._logger.info('Complete transaction fetching...')
+                return trades, True
             self._logger.debug(f'trade: {trade}')
             trades.append(trade)
-        return trades
+        return trades, False
 
     def get_token_info(self):
-        token_price = BoggedScrapper(self.token_adress, load_marketcap=False).get_token_info(self.token_adress)
-        return token_price
+        return BoggedScrapper(self.token_adress, load_marketcap=False).get_token_info(self.token_adress,
+                                                                                      load_marketcap=False)
 
     def get_last_page_number(self) -> int:
         last_page = int(

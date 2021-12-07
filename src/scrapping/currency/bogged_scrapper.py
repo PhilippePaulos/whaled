@@ -3,6 +3,7 @@ import os
 import time
 from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
 import webdriver_manager.firefox
 from selenium import webdriver
@@ -36,25 +37,27 @@ class ChartInstance(metaclass=Singleton):
 
     def get_price_str(self):
         return self.driver.find_element(By.XPATH,
-                                        '//*[@id="chartWrapper"]/div[1]/div[1]/div[1]/div[1]/span/span/div[1]/h4').text
+                                        '//*[@id="headlessui-listbox-button-8"]/div/div[2]/h4[1]').text
 
     def get_market_cap(self):
-        return self.driver.find_element(By.XPATH, '//*[@id="chartWrapper"]/div[1]/div/div[1]/div[2]/span[3]/h4').text
+        return self.driver.find_element(By.XPATH, '//*[@id="chartWrapper"]/div[1]/div[2]/div[2]/div[3]/span[2]/h4').text
 
 
 class BoggedScrapper(CurrencyScrapper):
 
-    def __init__(self, token_adress: str, check_interval=0, output_format='', output_path='',
+    def __init__(self, token_adress: str, check_interval=0, output_format='', output_path=None,
                  load_marketcap=True) -> None:
         super().__init__(token_adress, check_interval, output_format, output_path)
-        self.base_url = 'https://charts.bogged.finance'
+        self.base_url = 'https://beta.bogged.finance/?c=bsc'
         self.chart_instance = ChartInstance(self.get_token_url(self.token_adress), load_marketcap)
 
-    def get_token_info(self, token_adress) -> TokenInfo:
+    def get_token_info(self, token_adress, load_marketcap=True) -> TokenInfo:
         if self.token_adress != token_adress:
             self.chart_instance.load_chart(self.get_token_url(token_adress))
-        token_info = TokenInfo(utils.get_currency_value(self.chart_instance.get_price_str()), self.get_currency_mcap(),
-                               datetime.now())
+        m_cap = None
+        if load_marketcap:
+            m_cap = self.get_currency_mcap()
+        token_info = TokenInfo(utils.get_currency_value(self.chart_instance.get_price_str()), m_cap, datetime.now())
         self._logger.info(token_info)
         return token_info
 
@@ -71,4 +74,4 @@ class BoggedScrapper(CurrencyScrapper):
         return value
 
     def get_token_url(self, token_adress: str) -> str:
-        return os.path.join(f"{self.base_url}/{token_adress}")
+        return os.path.join(f"{self.base_url}&t={token_adress}")

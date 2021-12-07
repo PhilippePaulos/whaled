@@ -1,0 +1,31 @@
+:root:not(.bogChart) {
+    --tv-color-platform-background: #101722; /* Panel background */
+    --tv-color-pane-background: #101722; /* Toolbar background */
+    --tv-color-pane-background-secondary: #101722; /* Additional background color for toolbars (e.g. when there is an open toolbar on the right) */
+    --tv-color-toolbar-button-background-hover: #08ff7f18; /* Hover effect color for a toolbar button */
+    --tv-color-toolbar-button-background-secondary-hover: #1BC870; /* Additional hover color for toolbar buttons (e.g. when there is an open toolbar on the right) */
+    --tv-color-toolbar-button-background-expanded: #08ff7f18; /* Opened dropdown  (e.g time) */
+    --tv-color-toolbar-button-text: #4C5C75; /* Text and icon color for toolbar buttons */
+    --tv-color-toolbar-button-text-hover: #1BC870; /* Text and icon color for toolbar buttons when hovering over them */
+    --tv-color-toolbar-button-text-active: #D3F2DA; /* Text and icon color for toolbar buttons that are active */
+    --tv-color-toolbar-button-text-active-hover: #1BC870; /*  Text and icon color for toolbar buttons that are active when hovering over them (e.g auto button) */
+    --tv-color-item-active-text: rgb(6, 255, 6); /* Text color for toggle toolbar buttons (e.g. Magnet Mode, Lock All Drawings) */
+    --tv-color-toolbar-toggle-button-background-active: #1BC870; /* Fill color for toggle toolbar buttons (e.g. Magnet Mode, Lock All Drawings) */
+    --tv-color-toolbar-toggle-button-background-active-hover: #106527; /* Fill color for toggle toolbar buttons when hovering over them (e.g. Magnet Mode, Lock All Drawings) */
+}
+
+.theme-bogChart:root {
+    --tv-color-platform-background: #101722; /* Panel background */
+    --tv-color-pane-background: #101722; /* Toolbar background */
+    --tv-color-pane-background-secondary: #101722; /* Additional background color for toolbars (e.g. when there is an open toolbar on the right) */
+    --tv-color-toolbar-button-background-hover: #08ff7f18; /* Hover effect color for a toolbar button */
+    --tv-color-toolbar-button-background-secondary-hover: #1BC870; /* Additional hover color for toolbar buttons (e.g. when there is an open toolbar on the right) */
+    --tv-color-toolbar-button-background-expanded: #08ff7f18; /* Opened dropdown  (e.g time) */
+    --tv-color-toolbar-button-text: #4C5C75; /* Text and icon color for toolbar buttons */
+    --tv-color-toolbar-button-text-hover: #1BC870; /* Text and icon color for toolbar buttons when hovering over them */
+    --tv-color-toolbar-button-text-active: #D3F2DA; /* Text and icon color for toolbar buttons that are active */
+    --tv-color-toolbar-button-text-active-hover: #1BC870; /*  Text and icon color for toolbar buttons that are active when hovering over them (e.g auto button) */
+    --tv-color-item-active-text: rgb(6, 255, 6); /* Text color for toggle toolbar buttons (e.g. Magnet Mode, Lock All Drawings) */
+    --tv-color-toolbar-toggle-button-background-active: #1BC870; /* Fill color for toggle toolbar buttons (e.g. Magnet Mode, Lock All Drawings) */
+    --tv-color-toolbar-toggle-button-background-active-hover: #106527; /* Fill color for toggle toolbar buttons when hovering over them (e.g. Magnet Mode, Lock All Drawings) */
+}

@@ -1,9 +1,10 @@
 from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
 
 class TokenInfo:
-    def __init__(self, price: Decimal, marketcap: Decimal, date: datetime) -> None:
+    def __init__(self, price: Decimal, marketcap: Optional[Decimal], date: datetime) -> None:
         super().__init__()
         self.price = price
         self.marketcap = marketcap
