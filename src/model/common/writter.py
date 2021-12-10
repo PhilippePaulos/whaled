@@ -14,6 +14,9 @@ class OutputWritter(ABC):
         else:
             export_objects_to_csv(path, objects)
 
-    def save_es(self, index: str, objects: typing.List[object]):
+    @staticmethod
+    def save_es(index: str, objects: typing.List[object]):
         es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+        True
+
 

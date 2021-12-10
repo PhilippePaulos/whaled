@@ -54,5 +54,7 @@ class CurrencyScrapper(OutputWritter):
     def save(self, token_infos: typing.List[TokenInfo]):
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
             self.save_csv(os.path.join(self.output_path, f'token_info_{self.token_adress}.csv'), token_infos)
+        elif self.output_format.upper() == OutputFormats.OUTPUT_ES:
+            self.save_es('es_name', token_infos)
         else:
             raise NotImplemented(self.output_format)
