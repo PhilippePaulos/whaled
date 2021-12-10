@@ -3,12 +3,13 @@ import os
 import time
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 
 import webdriver_manager.firefox
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
 from model.common.singleton import Singleton
 from model.token_info import TokenInfo
@@ -40,7 +41,10 @@ class ChartInstance(metaclass=Singleton):
                                         '//*[@id="headlessui-listbox-button-8"]/div/div[2]/h4[1]').text
 
     def get_market_cap(self):
-        return self.driver.find_element(By.XPATH, '//*[@id="chartWrapper"]/div[1]/div[2]/div[2]/div[3]/span[2]/h4').text
+        w = WebDriverWait(self.driver, 30)
+        m_cap_element = w.until(EC.visibility_of_element_located(
+            (By.XPATH, '//*[@id="chartWrapper"]/div[1]/div[2]/div[2]/div[3]/span[2]/h4')))
+        return m_cap_element.text
 
 
 class BoggedScrapper(CurrencyScrapper):
