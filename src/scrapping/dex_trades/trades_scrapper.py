@@ -30,7 +30,8 @@ class DriverInstance(metaclass=Singleton):
 class ScanScrapper(OutputWritter):
     MAX_NUM_TRADES = 100
 
-    def __init__(self, token_adress: str, check_interval=None, output_format=None, output_path=None) -> None:
+    def __init__(self, token_adress: str, check_interval=None, output_format=None, output_path=None,
+                 es_host=None, es_port=None) -> None:
         super().__init__()
         self._logger = logging.getLogger()
         self.token_adress = token_adress
@@ -38,6 +39,8 @@ class ScanScrapper(OutputWritter):
         self.check_interval = check_interval
         self.output_format = output_format
         self.output_path = output_path
+        self.es_host = es_host
+        self.es_port = es_port
 
     @property
     @abstractmethod
@@ -136,5 +139,7 @@ class ScanScrapper(OutputWritter):
     def save(self, trades, prepend=False):
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
             self.save_csv(os.path.join(self.output_path, f'token_trades_{self.token_adress}.csv'), trades, prepend)
+        elif self.output_format.upper() == OutputFormats.OUTPUT_ES:
+            self.save_es(self.token_adress, trades, self.es_port, self.es_host)
         else:
             raise NotImplemented(self.output_format)

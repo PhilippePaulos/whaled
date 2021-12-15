@@ -14,8 +14,9 @@ from scrapping.utils.utils import get_currency_value
 
 class BscScanScrapper(ScanScrapper):
 
-    def __init__(self, token_adress: str, check_interval=None, output_format=None, output_path=None) -> None:
-        super().__init__(token_adress, check_interval, output_format, output_path)
+    def __init__(self, token_adress: str, check_interval=None, output_format=None, output_path=None, es_host=None,
+                 es_port=None) -> None:
+        super().__init__(token_adress, check_interval, output_format, output_path, es_host, es_port)
 
     @property
     def base_url(self) -> str:

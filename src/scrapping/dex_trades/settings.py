@@ -13,6 +13,8 @@ blockchain = 'bsc'
 
 output_format = 'csv'
 output_path = 'trades.csv'
+output_host = 'localhost'
+output_port = 9200
 history = False
 check_interval = 30
 
