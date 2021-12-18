@@ -49,9 +49,8 @@ class ChartInstance(metaclass=Singleton):
 
 class BoggedScrapper(CurrencyScrapper):
 
-    def __init__(self, token_adress: str, check_interval=0, output_format='', output_path=None,
-                 load_marketcap=True) -> None:
-        super().__init__(token_adress, check_interval, output_format, output_path)
+    def __init__(self, token_adress: str, load_marketcap=True) -> None:
+        super().__init__(token_adress)
         self.base_url = 'https://beta.bogged.finance/?c=bsc'
         self.chart_instance = ChartInstance(self.get_token_url(self.token_adress), load_marketcap)
 

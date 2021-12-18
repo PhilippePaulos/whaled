@@ -11,4 +11,5 @@ check_interval: 20
 #  path: '/home/yims'
 
 output:
-  format: 'es'
+  format: 'csv'
+  path: '/home/yims'

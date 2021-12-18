@@ -15,6 +15,7 @@ from model.common.singleton import Singleton
 from model.common.utils import processing_time
 from model.common.writter import OutputWritter
 from model.token_trade import TokenTrade
+from scrapping.dex_trades.trades_config import TradesConfig
 
 
 class DriverInstance(metaclass=Singleton):
@@ -30,17 +31,16 @@ class DriverInstance(metaclass=Singleton):
 class ScanScrapper(OutputWritter):
     MAX_NUM_TRADES = 100
 
-    def __init__(self, token_adress: str, check_interval=None, output_format=None, output_path=None,
-                 es_host=None, es_port=None) -> None:
+    def __init__(self, token_adress: str) -> None:
         super().__init__()
         self._logger = logging.getLogger()
         self.token_adress = token_adress
         self.driver_instance = DriverInstance(self.get_trades_url())
-        self.check_interval = check_interval
-        self.output_format = output_format
-        self.output_path = output_path
-        self.es_host = es_host
-        self.es_port = es_port
+        self.check_interval = TradesConfig().check_interval
+        self.output_format = TradesConfig().output_format
+        self.output_path = TradesConfig().output_path
+        self.es_host = TradesConfig().es_host
+        self.es_port = TradesConfig().es_port
 
     @property
     @abstractmethod
