@@ -19,11 +19,14 @@ class OutputWritter(ABC):
 
     @staticmethod
     def save_es(index: str, objects: typing.List[object], es_host: str, es_port: int):
-        index = index.lower()
-        es = Elasticsearch([{'host': es_host, 'port': es_port}])
-        if not es.indices.exists(index=index):
-            logging.debug(f'Creating index {index}')
-            es.indices.create(index=index)
+        if len(objects) > 0:
+            index = index.lower()
+            es = Elasticsearch([{'host': es_host, 'port': es_port}])
+            if not es.indices.exists(index=index):
+                logging.debug(f'Creating index {index}')
+                es.indices.create(index=index)
 
-        logging.debug(f'Insert data into index: {index}')
-        bulk(es, es_generate_bulk_data(index, objects))
+            logging.debug(f'Insert data into index: {index}')
+            bulk(es, es_generate_bulk_data(index, objects))
+        else:
+            logging.info('There is no data to save')
