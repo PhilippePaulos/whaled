@@ -1,9 +1,11 @@
 import logging
 import typing
-from elasticsearch import Elasticsearch
 from abc import ABC
-import simplejson as json
-from model.common.utils import export_objects_to_csv, prepend_objects_to_csv
+
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
+
+from model.common.utils import export_objects_to_csv, prepend_objects_to_csv, es_generate_bulk_data
 
 
 class OutputWritter(ABC):
@@ -17,10 +19,11 @@ class OutputWritter(ABC):
 
     @staticmethod
     def save_es(index: str, objects: typing.List[object], es_host: str, es_port: int):
+        index = index.lower()
         es = Elasticsearch([{'host': es_host, 'port': es_port}])
-        if not es.indices.exists(index=index.lower()):
-            logging.debug(f'Creating index {index.lower()}')
-            es.indices.create(index=index.lower())
-        for instance in objects:
-            object_dict = instance.__dict__
-            es.index(index=index.lower(), body=json.dumps(object_dict, use_decimal=True))
+        if not es.indices.exists(index=index):
+            logging.debug(f'Creating index {index}')
+            es.indices.create(index=index)
+
+        logging.debug(f'Insert data into index: {index}')
+        bulk(es, es_generate_bulk_data(index, objects))

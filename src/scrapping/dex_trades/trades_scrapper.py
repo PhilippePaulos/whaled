@@ -140,6 +140,6 @@ class ScanScrapper(OutputWritter):
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
             self.save_csv(os.path.join(self.output_path, f'token_trades_{self.token_adress}.csv'), trades, prepend)
         elif self.output_format.upper() == OutputFormats.OUTPUT_ES:
-            self.save_es(self.token_adress, trades, self.es_port, self.es_host)
+            self.save_es(f'trades_{self.token_adress}', trades, self.es_host, self.es_port)
         else:
             raise NotImplemented(self.output_format)

@@ -8,13 +8,11 @@ token_adress: '0xB09FE1613fE03E7361319d2a43eDc17422f36B09'
 #blockchain: 'eth'
 #token_adress: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
 
-#output:
-#  format: 'es'
-#  es_host: 'localhost'
-#  es_port: 9300
-
 output:
-  format: 'csv'
-  path: '/home/yims'
+  format: 'es'
+
+#output:
+#  format: 'csv'
+#  path: '/home/yims'
 
 history: False

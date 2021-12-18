@@ -6,10 +6,9 @@ blockchain: 'bsc'
 token_adress: '0x9D12CC56d133Fc5c60E9385B7A92F35a682da0bd'
 check_interval: 20
 
+output:
+  format: 'es'
+
 #output:
 #  format: 'csv'
 #  path: '/home/yims'
-
-output:
-  format: 'csv'
-  path: '/home/yims'
