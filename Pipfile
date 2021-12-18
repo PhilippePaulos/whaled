@@ -8,6 +8,7 @@ selenium = "*"
 webdriver-manager = "*"
 pyyaml = "*"
 elasticsearch = "*"
+simplejson = "*"
 
 [dev-packages]
 pytest = "*"

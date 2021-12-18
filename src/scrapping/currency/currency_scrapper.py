@@ -8,17 +8,18 @@ from decimal import Decimal
 from model.common.output import OutputFormats
 from model.common.writter import OutputWritter
 from model.token_info import TokenInfo
+from scrapping.currency.currency_config import CurrencyConfig
 
 
 class CurrencyScrapper(OutputWritter):
 
-    def __init__(self, token_adress: str, check_interval=0, output_format='', output_path=None) -> None:
+    def __init__(self, token_adress: str) -> None:
         super().__init__()
         self._logger = logging.getLogger()
         self._token_adress = token_adress
-        self.check_interval = check_interval
-        self.output_format = output_format
-        self.output_path = output_path
+        self.check_interval = CurrencyConfig().check_interval
+        self.output_format = CurrencyConfig().output_format
+        self.output_path = CurrencyConfig().output_path
 
     @property
     def token_adress(self):
@@ -55,6 +56,6 @@ class CurrencyScrapper(OutputWritter):
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
             self.save_csv(os.path.join(self.output_path, f'token_info_{self.token_adress}.csv'), token_infos)
         elif self.output_format.upper() == OutputFormats.OUTPUT_ES:
-            self.save_es('es_name', token_infos)
+            self.save_es(f'token_{self.token_adress}', token_infos, CurrencyConfig().es_host, CurrencyConfig().es_port)
         else:
             raise NotImplemented(self.output_format)

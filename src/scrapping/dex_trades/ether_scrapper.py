@@ -15,8 +15,8 @@ from scrapping.utils.utils import get_currency_value
 
 class EtherScanScrapper(ScanScrapper):
 
-    def __init__(self, token_adress:str, check_interval=None, output_format=None, output_path=None) -> None:
-        super().__init__(token_adress, check_interval, output_format, output_path)
+    def __init__(self, token_adress:str) -> None:
+        super().__init__(token_adress)
         iframe = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="txnsiframe"]')
         self.driver_instance.driver.switch_to.frame(iframe)
         wait = WebDriverWait(self.driver_instance.driver, 10)

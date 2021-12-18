@@ -7,6 +7,8 @@ from argparse import ArgumentParser
 from datetime import timedelta
 from timeit import default_timer
 
+import simplejson
+
 logger = logging.getLogger()
 
 
@@ -54,3 +56,11 @@ def prepend_objects_to_csv(path: str, instance_list: typing.List[object], delimi
             with open(tmp_file_name, 'a+') as write_f:
                 write_f.write(read_f.read())
         os.rename(tmp_file_name, path)
+
+
+def es_generate_bulk_data(index, objects: typing.List[object]):
+    for instance in objects:
+        yield {
+            '_index': index,
+            '_source': simplejson.dumps(instance.__dict__, use_decimal=True, default=str)
+        }
