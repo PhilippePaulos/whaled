@@ -1,2 +1,24 @@
 List indexes:
-    curl http://localhost:9200/_aliases?pretty=true
+curl http://localhost:9200/_aliases?pretty=true
+
+Display templates:
+curl http://localhost:9200/_cat/templates
+
+Query index:
+curl http://localhost:9200/token-0xb09fe1613fe03e7361319d2a43edc17422f36b09/_source
+
+Delete index:
+curl -XDELETE http://localhost:9200/trades-0xb09fe1613fe03e7361319d2a43edc17422f36b09
+
+Last trades:
+curl -XGET 'http://localhost:9200/trades-0xb09fe1613fe03e7361319d2a43edc17422f36b09/_search' -H 'Content-Type: application/json' -d '{
+	"query": {
+		"match_all": {}
+	},
+	"size": 1,
+	"sort": [{
+		"timestamp": {
+			"order": "desc"
+		}
+	}]
+}'

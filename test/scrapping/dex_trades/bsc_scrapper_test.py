@@ -29,20 +29,20 @@ class BscScanScrapperTest(TestCase):
             trades_list[0] == TokenTrade(txn_hash='0x0ff34dfc1c96a93d6c535d9bd8fb7658ca377d9868017859163d33da7286d1d9',
                                          action=Action.SELL.value, amount=Decimal('25080882.4388396'),
                                          amount_in='1,068.91875726039 BSC-USD', amount_out='25,080,882.4388396 SHIB',
-                                         value=Decimal('25080882.4388396'))
+                                         timestamp=datetime.now(), value=Decimal('25080882.4388396'))
         )
         self.assertTrue(
             trades_list[-1] == TokenTrade(txn_hash='0x3a5ca74140711aefb3a8c712e901f92b355b16694ab17958b8fb39154b8dec4d',
-                                         action=Action.BUY.value, amount=Decimal('23507801.506527'),
-                                         amount_in='23,507,801.506527 SHIB', amount_out='1.61455797768236 WBNB',
-                                         value=Decimal('23507801.506527'))
+                                          action=Action.BUY.value, amount=Decimal('23507801.506527'),
+                                          amount_in='23,507,801.506527 SHIB', amount_out='1.61455797768236 WBNB',
+                                          timestamp=datetime.now(), value=Decimal('23507801.506527'))
         )
 
     def test_save_csv(self):
         token_trade = TokenTrade(txn_hash='0xa0ec390af06c29592d1d776fd2e3f954a69801aa55b735a59cfafa73fcac47bd',
                                  action=Action.BUY.value, amount=Decimal('535664.913904223'),
                                  amount_in='535664.913904223 SHIB', amount_out='0.0555153483551779 WBNB',
-                                 value=Decimal('25.9963003701944559907'))
+                                 timestamp=datetime.now(), value=Decimal('25.9963003701944559907'))
 
         with tempfile.TemporaryDirectory() as d:
             output_path = os.path.join(d, 'outputs')
@@ -50,5 +50,5 @@ class BscScanScrapperTest(TestCase):
             with open(output_path, 'r') as output_file:
                 reader = csv.reader(output_file, delimiter=';')
                 row = reader.__next__()
-                self.assertTrue(TokenTrade(row[0], int(row[1]), Decimal(row[2]), row[3], row[4], Decimal(row[5])) ==
-                                token_trade)
+                self.assertTrue(TokenTrade(row[0], int(row[1]), Decimal(row[2]), row[3], row[4], str(row[5]),
+                                           Decimal(row[6])) == token_trade)

@@ -1,5 +1,6 @@
 import concurrent.futures
 import typing
+from datetime import datetime
 from decimal import Decimal
 from typing import Tuple, List
 
@@ -57,7 +58,7 @@ class BscScanScrapper(ScanScrapper):
                 self._logger.warning('Could not get action type')
                 action = Action.UNKNOWN.value
             trade = TokenTrade(txn_hash=columns[0].text, action=action, amount=amount, amount_out=columns[2].text,
-                               amount_in=columns[4].text)
+                               amount_in=columns[4].text, timestamp=datetime.now().timestamp())
             if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
                 self._logger.info(f'{trade.txn_hash} already saved')
                 self._logger.info('Complete transaction fetching...')

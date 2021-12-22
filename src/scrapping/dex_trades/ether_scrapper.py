@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import InvalidOperation
 from telnetlib import EC
 from typing import Tuple, List
@@ -17,6 +18,13 @@ class EtherScanScrapper(ScanScrapper):
 
     def __init__(self, token_adress:str) -> None:
         super().__init__(token_adress)
+        self.prepare_page()
+
+    def reload(self):
+        self.driver_instance.driver.refresh()
+        self.prepare_page()
+
+    def prepare_page(self):
         iframe = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="txnsiframe"]')
         self.driver_instance.driver.switch_to.frame(iframe)
         wait = WebDriverWait(self.driver_instance.driver, 10)
@@ -60,7 +68,7 @@ class EtherScanScrapper(ScanScrapper):
                 self._logger.error(f'Could not convert to decimal value: {columns[8].text}')
 
             trade = TokenTrade(txn_hash=columns[1].text, action=action, amount=amount, amount_out=amount_out,
-                               amount_in=amount_in, value=txn_value)
+                               amount_in=amount_in, value=txn_value, timestamp=datetime.now().timestamp())
             if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
                 self._logger.info(f'{trade.txn_hash} already saved')
                 self._logger.info('End transaction fetching...')

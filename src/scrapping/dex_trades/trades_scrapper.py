@@ -7,6 +7,8 @@ from decimal import Decimal
 from typing import Optional, Tuple, List
 
 import webdriver_manager.firefox
+from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import NotFoundError
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service
 
@@ -51,6 +53,10 @@ class ScanScrapper(OutputWritter):
     def get_trades_url(self) -> str:
         pass
 
+    @property
+    def es_index(self) -> str:
+        return f'trades-{self.token_adress}'.lower()
+
     def process(self, history):
         if history:
             trades = self.get_trades_history()
@@ -62,6 +68,7 @@ class ScanScrapper(OutputWritter):
                 self.save(trades, prepend=True)
                 self._logger.info(f'waiting (check interval={self.check_interval})...')
                 time.sleep(self.check_interval)
+                self.reload()
 
     @processing_time()
     def get_new_trades(self, last_trade) -> Tuple[List[TokenTrade], str]:
@@ -104,6 +111,7 @@ class ScanScrapper(OutputWritter):
         Gets the last saved transaction from CSV or ES
         :return: last saved transaction or None
         """
+        self._logger.info('Getting last saved transaction...')
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
             if os.path.exists(self.get_csv_output_path()):
                 with open(self.get_csv_output_path(), "r") as file:
@@ -112,8 +120,17 @@ class ScanScrapper(OutputWritter):
                     return first_line.split(';')[0]
             else:
                 self._logger.warning(f"Couldn't find previous csv trades file at {self.get_csv_output_path()}")
+        elif self.output_format.upper() == OutputFormats.OUTPUT_ES:
+            es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
+            query = '{"query": {"match_all":{}},"size": 1,"sort": [{"timestamp": {"order": "desc"}}]}'
+            try:
+                last_trade = es.search(index=self.es_index, body=query)['hits']['hits'][0]['_source']['txn_hash']
+                return last_trade
+            except NotFoundError:
+                self._logger.info(f"{self.es_index} doesn't exists. There is no transactions yet")
+                return None
         else:
-            self._logger.error('Cannot get last transaction')
+            self._logger.error('Cannot get last transaction, output_format not supported.')
             return None
 
     @processing_time()
@@ -140,6 +157,9 @@ class ScanScrapper(OutputWritter):
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
             self.save_csv(os.path.join(self.output_path, f'token_trades_{self.token_adress}.csv'), trades, prepend)
         elif self.output_format.upper() == OutputFormats.OUTPUT_ES:
-            self.save_es(f'trades_{self.token_adress}', trades, self.es_host, self.es_port)
+            self.save_es(self.es_index, trades, self.es_host, self.es_port)
         else:
             raise NotImplemented(self.output_format)
+
+    def reload(self):
+        self.driver_instance.driver.refresh()

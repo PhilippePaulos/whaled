@@ -6,6 +6,7 @@ def setup_log(level_str, log_file=None):
     logging.getLogger('selenium').setLevel('INFO')
     logging.getLogger('webdriver_manager').setLevel('INFO')
     logging.getLogger('urllib3').setLevel('INFO')
+    logging.getLogger('elasticsearch').setLevel('INFO')
     logger = logging.getLogger()
     logger.setLevel(level)
     log_format = "%(asctime)s - %(name)s - %(module)s - %(levelname)s - %(message)s"

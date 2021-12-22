@@ -2,6 +2,7 @@ import csv
 import os
 import pathlib
 import tempfile
+from datetime import datetime
 from decimal import Decimal
 from unittest import TestCase, skip
 from unittest.mock import patch
@@ -30,7 +31,7 @@ class EtherScanScrapperTest(TestCase):
     def test_save_csv(self):
         token_trade = TokenTrade(txn_hash='0x933fc590ed0538ffe8648a9aa0965b0e53cf33c8f4a802a6ee6aeb51d218a4f2',
                                  action=Action.BUY.value, amount=Decimal('5848500534.39251'),
-                                 amount_in='5,848,500,534.39251 ELON',
+                                 amount_in='5,848,500,534.39251 ELON', timestamp=datetime.now(),
                                  amount_out='2.23701713289359 ETH', value=Decimal('10047.61'))
 
         with tempfile.TemporaryDirectory() as d:
@@ -39,5 +40,5 @@ class EtherScanScrapperTest(TestCase):
             with open(output_path, 'r') as output_file:
                 reader = csv.reader(output_file, delimiter=';')
                 row = reader.__next__()
-                self.assertTrue(TokenTrade(row[0], int(row[1]), Decimal(row[2]), row[3], row[4], Decimal(row[5])) ==
-                                token_trade)
+                self.assertTrue(TokenTrade(row[0], int(row[1]), Decimal(row[2]), row[3], row[4], row[5],
+                                           Decimal(row[6])) == token_trade)
