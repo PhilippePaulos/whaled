@@ -60,11 +60,13 @@ class ScanScrapper(OutputWritter):
     def process(self, history):
         if history:
             trades = self.get_trades_history()
+            trades = list(filter(self.filter_trades, trades))
             self.save(trades)
         else:
             last_trade = None
             while True:
                 trades, last_trade = self.get_new_trades(last_trade)
+                trades = list(filter(self.filter_trades, trades))
                 self.save(trades, prepend=True)
                 self._logger.info(f'waiting (check interval={self.check_interval})...')
                 time.sleep(self.check_interval)
@@ -78,7 +80,8 @@ class ScanScrapper(OutputWritter):
         if last_trade is not None:
             token_price: Optional[Decimal] = None
             while True:
-                tokens, match, token_price = self.get_trades_with_price(token_price, last_trade)
+                tokens, match, token_price = self.get_trades_with_price(token_price, last_trade_txn=last_trade,
+                                                                        disable_price_check=TradesConfig().disable_price_check)
                 token_trades.extend(tokens)
                 if match and len(tokens) == 0:
                     return tokens, last_trade
@@ -87,10 +90,12 @@ class ScanScrapper(OutputWritter):
                 else:
                     self.move_to_next_page()
         else:
-            token_trades, _, _ = self.get_trades_with_price(None)
+            token_trades, _, _ = self.get_trades_with_price(None,
+                                                            disable_price_check=TradesConfig().disable_price_check)
             return token_trades, token_trades[0].txn_hash
 
-    def get_trades_with_price(self, price, last_trade_txn=None) -> Tuple[List[TokenTrade], bool, Decimal]:
+    def get_trades_with_price(self, price, last_trade_txn=None, disable_price_check=False) ->\
+            Tuple[List[TokenTrade], bool, Decimal]:
         tokens, match = self.get_trades_from_page(last_trade_txn)
         return tokens, match, price
 
@@ -163,3 +168,9 @@ class ScanScrapper(OutputWritter):
 
     def reload(self):
         self.driver_instance.driver.refresh()
+
+    @staticmethod
+    def filter_trades(trade: TokenTrade):
+        if trade.amount >= int(TradesConfig().filter_num_tokens):
+            return True
+        return False

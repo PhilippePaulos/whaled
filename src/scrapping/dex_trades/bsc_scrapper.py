@@ -25,18 +25,20 @@ class BscScanScrapper(ScanScrapper):
     def get_trades_url(self) -> str:
         return f'{self.base_url}/dextracker?q={self.token_adress}&ps={self.MAX_NUM_TRADES}'
 
-    def get_trades_with_price(self, price, last_trade_txn=None) -> Tuple[List[TokenTrade], bool, Decimal]:
+    def get_trades_with_price(self, price, last_trade_txn=None, disable_price_check=False) -> \
+            Tuple[List[TokenTrade], bool, Decimal]:
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [executor.submit(self.get_trades_from_page, last_trade_txn)]
-            if price is None:
+            if price is None and not disable_price_check:
                 futures.append(executor.submit(self.get_token_info))
                 token_info = futures[1].result()
             trades: typing.List[TokenTrade] = futures[0].result()[0]
             match = futures[0].result()[1]
-        if price is None:
-            price = token_info.price
-        for trade in trades:
-            trade.value = price * trade.amount
+        if not disable_price_check:
+            if price is None:
+                price = token_info.price
+            for trade in trades:
+                trade.value = price * trade.amount
         return trades, match, price
 
     def get_trades_from_page(self, last_trade_txn=None) -> typing.Tuple[typing.List[TokenTrade], bool]:
@@ -81,14 +83,3 @@ class BscScanScrapper(ScanScrapper):
                                                                   '//*[@id="content"]/div[2]/div/div[2]/div[1]/nav/ul/li[4]/a')
         self.driver_instance.driver.execute_script("arguments[0].scrollIntoView(true);", next_page_link_element)
         next_page_link_element.click()
-
-    # def move_to_next_page(self, current_page) -> str:
-    #     url = self.get_trades_url()
-    #     match_page = re.search(r'p=\d$', url)
-    #     if match_page is not None:
-    #         current_page = int(re.split('=', match_page.group(0))[-1])
-    #         next_url = re.sub(r'p=\d$', f'p={str(current_page + 1)}', url)
-    #         self._logger.info(f'Going to next page: {next_url}')
-    #         self.driver_instance.driver.get(next_url)
-    #         return next_url
-    #     raise Exception(f'Could not compute next page url with current url: {url}')

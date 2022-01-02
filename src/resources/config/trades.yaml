@@ -3,7 +3,7 @@ logging:
   file: 'scrapping.log'
 
 blockchain: 'bsc'
-token_adress: '0xB09FE1613fE03E7361319d2a43eDc17422f36B09'
+token_adress: '0xc748673057861a797275CD8A068AbB95A902e8de'
 
 #blockchain: 'eth'
 #token_adress: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
@@ -15,4 +15,9 @@ output:
 #  format: 'csv'
 #  path: '/home/yims'
 
-history: False
+history: True
+
+disable_price_check: True
+
+filter:
+  num_tokens: 80000000000000
