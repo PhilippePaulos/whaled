@@ -40,7 +40,7 @@ class EtherScanScrapper(ScanScrapper):
     def get_trades_url(self) -> str:
         return f'{self.base_url}dex?q={self.token_adress}#transactions'
 
-    def get_trades_from_page(self, last_trade_txn=None) -> Tuple[List[TokenTrade], bool]:
+    def get_trades_from_page(self, last_trade_txn=None) -> Tuple[List[TokenTrade], bool, bool]:
         table = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="doneloadingframe"]/div[3]/table')
         trades = []
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
@@ -72,10 +72,13 @@ class EtherScanScrapper(ScanScrapper):
             if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
                 self._logger.info(f'{trade.txn_hash} already saved')
                 self._logger.info('End transaction fetching...')
-                return trades, True
+                return trades, True, False
             self._logger.debug(f'Trade: {trade}')
             trades.append(trade)
-        return trades, False
+        empty_page = False
+        if len(trades) == 0:
+            empty_page = True
+        return trades, False, empty_page
 
     def move_to_next_page(self):
         next_page_link_element = self.driver_instance.driver.find_element(By.XPATH,

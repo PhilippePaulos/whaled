@@ -41,7 +41,7 @@ class BscScanScrapper(ScanScrapper):
                 trade.value = price * trade.amount
         return trades, match, price
 
-    def get_trades_from_page(self, last_trade_txn=None) -> typing.Tuple[typing.List[TokenTrade], bool]:
+    def get_trades_from_page(self, last_trade_txn=None) -> typing.Tuple[typing.List[TokenTrade], bool, bool]:
         driver = self.driver_instance.driver
         table = driver.find_element(By.XPATH, '//*[@id="content"]/div[2]/div/div[2]/div[2]/table')
         trades = []
@@ -64,10 +64,13 @@ class BscScanScrapper(ScanScrapper):
             if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
                 self._logger.info(f'{trade.txn_hash} already saved')
                 self._logger.info('Complete transaction fetching...')
-                return trades, True
+                return trades, True, False
             self._logger.debug(f'trade: {trade}')
             trades.append(trade)
-        return trades, False
+        empty_page = False
+        if len(trades) == 0:
+            empty_page = True
+        return trades, False, empty_page
 
     def get_token_info(self):
         return BoggedScrapper(self.token_adress, load_marketcap=False).get_token_info(self.token_adress,

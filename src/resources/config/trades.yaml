@@ -15,9 +15,9 @@ output:
 #  format: 'csv'
 #  path: '/home/yims'
 
-history: True
+history: False
 
 disable_price_check: True
 
 filter:
-  num_tokens: 80000000000000
+  num_tokens: 0

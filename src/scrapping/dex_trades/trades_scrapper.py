@@ -57,50 +57,65 @@ class ScanScrapper(OutputWritter):
     def es_index(self) -> str:
         return f'trades-{self.token_adress}'.lower()
 
+    @property
+    def last_checked_trade_index(self) -> str:
+        return f'last_checked_trades'
+
     def process(self, history):
         if history:
             trades = self.get_trades_history()
             trades = list(filter(self.filter_trades, trades))
             self.save(trades)
+            self.save_last_checked_trade(trades[0])
         else:
-            last_trade = None
+            last_checked_trade = None
             while True:
-                trades, last_trade = self.get_new_trades(last_trade)
+                trades, last_checked_trade = self.get_new_trades(last_checked_trade)
                 trades = list(filter(self.filter_trades, trades))
                 self.save(trades, prepend=True)
+                if len(trades) > 0:
+                    self.save_last_checked_trade(trades[0])
                 self._logger.info(f'waiting (check interval={self.check_interval})...')
                 time.sleep(self.check_interval)
                 self.reload()
 
     @processing_time()
-    def get_new_trades(self, last_trade) -> Tuple[List[TokenTrade], str]:
+    def get_new_trades(self, last_checked_trade_hash) -> Tuple[List[TokenTrade], str]:
         token_trades = []
-        if last_trade is None:
-            last_trade = self.get_last_saved_transaction()
-        if last_trade is not None:
+        if last_checked_trade_hash is None:
+            last_checked_trade_hash = self.get_last_checked_transaction_hash()
+        if last_checked_trade_hash is not None:
             token_price: Optional[Decimal] = None
+            changed_page = False
             while True:
-                tokens, match, token_price = self.get_trades_with_price(token_price, last_trade_txn=last_trade,
+                tokens, match, token_price = self.get_trades_with_price(token_price,
+                                                                        last_trade_txn=last_checked_trade_hash,
                                                                         disable_price_check=TradesConfig().disable_price_check)
                 token_trades.extend(tokens)
                 if match and len(tokens) == 0:
-                    return tokens, last_trade
+                    return tokens, last_checked_trade_hash
                 elif match and len(tokens) > 0:
-                    return token_trades, tokens[0].txn_hash
+                    last_checked_trade = token_trades[0]
+                    if changed_page:
+                        self.driver_instance.driver.get(self.get_trades_url())
+                    return token_trades, last_checked_trade.txn_hash
                 else:
                     self.move_to_next_page()
+                    changed_page = True
         else:
-            token_trades, _, _ = self.get_trades_with_price(None,
-                                                            disable_price_check=TradesConfig().disable_price_check)
+            token_trades, _, _ = self.get_trades_with_price(None, disable_price_check=TradesConfig().disable_price_check)
             return token_trades, token_trades[0].txn_hash
+
+    def save_last_checked_trade(self, token_trade: TokenTrade):
+        self.save_raw_es(self.last_checked_trade_index, token_trade, self.es_host, self.es_port, id=self.token_adress.lower())
 
     def get_trades_with_price(self, price, last_trade_txn=None, disable_price_check=False) ->\
             Tuple[List[TokenTrade], bool, Decimal]:
-        tokens, match = self.get_trades_from_page(last_trade_txn)
+        tokens, match, _ = self.get_trades_from_page(last_trade_txn)
         return tokens, match, price
 
     @abstractmethod
-    def get_trades_from_page(self, last_trade_txn=None) -> typing.Tuple[typing.List[TokenTrade], bool]:
+    def get_trades_from_page(self, last_trade_txn=None) -> typing.Tuple[typing.List[TokenTrade], bool, bool]:
         """
         Get trades ordered trades from current browser page, stops if last_trade_txn matches a txn from the page
         :param last_trade_txn:
@@ -111,12 +126,12 @@ class ScanScrapper(OutputWritter):
     def get_csv_output_path(self):
         return os.path.join(self.output_path, f'token_trades_{self.token_adress}.csv')
 
-    def get_last_saved_transaction(self) -> Optional[str]:
+    def get_last_checked_transaction_hash(self) -> Optional[str]:
         """
         Gets the last saved transaction from CSV or ES
         :return: last saved transaction or None
         """
-        self._logger.info('Getting last saved transaction...')
+        self._logger.info('Getting last checked transaction...')
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
             if os.path.exists(self.get_csv_output_path()):
                 with open(self.get_csv_output_path(), "r") as file:
@@ -129,7 +144,8 @@ class ScanScrapper(OutputWritter):
             es = Elasticsearch([{'host': self.es_host, 'port': self.es_port}])
             query = '{"query": {"match_all":{}},"size": 1,"sort": [{"timestamp": {"order": "desc"}}]}'
             try:
-                last_trade = es.search(index=self.es_index, body=query)['hits']['hits'][0]['_source']['txn_hash']
+                last_trade = es.search(index=self.last_checked_trade_index,
+                                       body=query)['hits']['hits'][0]['_source']['txn_hash']
                 return last_trade
             except NotFoundError:
                 self._logger.info(f"{self.es_index} doesn't exists. There is no transactions yet")
@@ -143,8 +159,10 @@ class ScanScrapper(OutputWritter):
         trades = []
         current_page = 1
         last_page = self.get_last_page_number()
-        while current_page != last_page + 1:
-            trades.extend(self.get_trades_from_page()[0])
+        empty_page = False
+        while current_page != last_page + 1 and not empty_page:
+            trades_from_page, _, empty_page = self.get_trades_from_page()
+            trades.extend(trades_from_page)
             self._logger.debug(f'Moving to next page ({current_page + 1})')
             self.move_to_next_page()
             current_page += 1
@@ -162,7 +180,7 @@ class ScanScrapper(OutputWritter):
         if self.output_format.upper() == OutputFormats.OUTPUT_CSV:
             self.save_csv(os.path.join(self.output_path, f'token_trades_{self.token_adress}.csv'), trades, prepend)
         elif self.output_format.upper() == OutputFormats.OUTPUT_ES:
-            self.save_es(self.es_index, trades, self.es_host, self.es_port)
+            self.save_list_es(self.es_index, trades, self.es_host, self.es_port)
         else:
             raise NotImplemented(self.output_format)
 
