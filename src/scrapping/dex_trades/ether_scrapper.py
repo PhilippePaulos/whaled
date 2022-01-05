@@ -43,6 +43,7 @@ class EtherScanScrapper(ScanScrapper):
     def get_trades_from_page(self, last_trade_txn=None) -> Tuple[List[TokenTrade], bool, bool]:
         table = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="doneloadingframe"]/div[3]/table')
         trades = []
+        current_time = datetime.now()
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
             columns = row.find_elements(By.XPATH, './/td')
             amount_out = columns[5].text
@@ -67,8 +68,11 @@ class EtherScanScrapper(ScanScrapper):
                 #  du token)
                 self._logger.error(f'Could not convert to decimal value: {columns[8].text}')
 
+            time_ago_str = columns[1].text
+            trade_date = ScanScrapper.parse_time_ago(current_time, time_ago_str)
+
             trade = TokenTrade(txn_hash=columns[1].text, action=action, amount=amount, amount_out=amount_out,
-                               amount_in=amount_in, value=txn_value, timestamp=datetime.now().timestamp())
+                               amount_in=amount_in, value=txn_value, timestamp=trade_date)
             if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
                 self._logger.info(f'{trade.txn_hash} already saved')
                 self._logger.info('End transaction fetching...')

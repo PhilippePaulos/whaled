@@ -45,6 +45,7 @@ class BscScanScrapper(ScanScrapper):
         driver = self.driver_instance.driver
         table = driver.find_element(By.XPATH, '//*[@id="content"]/div[2]/div/div[2]/div[2]/table')
         trades = []
+        current_time = datetime.now()
         for row in table.find_elements(By.XPATH, './/tbody/tr'):
             columns = row.find_elements(By.XPATH, './/td')
             maker_adress = columns[2].find_element(By.XPATH, './/a').get_attribute('href').split('/')[-1]
@@ -59,8 +60,10 @@ class BscScanScrapper(ScanScrapper):
             else:
                 self._logger.warning('Could not get action type')
                 action = Action.UNKNOWN.value
+            time_ago_str = columns[1].text
+            trade_date = ScanScrapper.parse_time_ago(current_time, time_ago_str)
             trade = TokenTrade(txn_hash=columns[0].text, action=action, amount=amount, amount_out=columns[2].text,
-                               amount_in=columns[4].text, timestamp=datetime.now().timestamp())
+                               amount_in=columns[4].text, timestamp=trade_date)
             if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
                 self._logger.info(f'{trade.txn_hash} already saved')
                 self._logger.info('Complete transaction fetching...')
