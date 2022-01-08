@@ -23,3 +23,13 @@ class TokenTrade:
         return f'txn_hash: {self.txn_hash}, action: {self.action}, amount: {self.amount}, ' \
                f'amount_out: {self.amount_out}, amount_in: {self.amount_in}, value: {self.value},' \
                f' timestamp: {self.timestamp}'
+
+
+class TokenTradeSaving(TokenTrade):
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, TokenTrade):
+            return self.txn_hash == o.txn_hash
+        return False
+
+    def __hash__(self):
+        return self.txn_hash.__hash__()

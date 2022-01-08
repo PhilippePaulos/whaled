@@ -10,8 +10,9 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from model.action import Action
 from model.token_trade import TokenTrade
+from scrapping.dex_trades.history_scraper import EtherHistoryScraper
 from scrapping.dex_trades.trades_scrapper import ScanScrapper
-from scrapping.utils.utils import get_currency_value
+from scrapping.utils.utils import get_currency_value, parse_time_ago
 
 
 class EtherScanScrapper(ScanScrapper):
@@ -37,10 +38,14 @@ class EtherScanScrapper(ScanScrapper):
     def base_url(self) -> str:
         return 'https://etherscan.io/'
 
+    @property
+    def history_module(self):
+        return EtherHistoryScraper
+
     def get_trades_url(self) -> str:
         return f'{self.base_url}dex?q={self.token_adress}#transactions'
 
-    def get_trades_from_page(self, last_trade_txn=None) -> Tuple[List[TokenTrade], bool, bool]:
+    def get_trades_from_page(self, last_trade_txn=None) -> Tuple[List[TokenTrade], bool]:
         table = self.driver_instance.driver.find_element(By.XPATH, '//*[@id="doneloadingframe"]/div[3]/table')
         trades = []
         current_time = datetime.now()
@@ -69,20 +74,18 @@ class EtherScanScrapper(ScanScrapper):
                 self._logger.error(f'Could not convert to decimal value: {columns[8].text}')
 
             time_ago_str = columns[1].text
-            trade_date = ScanScrapper.parse_time_ago(current_time, time_ago_str)
+            trade_date = parse_time_ago(current_time, time_ago_str)
 
             trade = TokenTrade(txn_hash=columns[1].text, action=action, amount=amount, amount_out=amount_out,
                                amount_in=amount_in, value=txn_value, timestamp=trade_date)
             if last_trade_txn is not None and trade.txn_hash == last_trade_txn:
                 self._logger.info(f'{trade.txn_hash} already saved')
                 self._logger.info('End transaction fetching...')
-                return trades, True, False
+                return trades, True
             self._logger.debug(f'Trade: {trade}')
             trades.append(trade)
-        empty_page = False
-        if len(trades) == 0:
-            empty_page = True
-        return trades, False, empty_page
+
+        return trades, False
 
     def move_to_next_page(self):
         next_page_link_element = self.driver_instance.driver.find_element(By.XPATH,

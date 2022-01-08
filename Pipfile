@@ -9,6 +9,7 @@ webdriver-manager = "*"
 pyyaml = "*"
 elasticsearch = "*"
 simplejson = "*"
+scrapy = "*"
 
 [dev-packages]
 pytest = "*"

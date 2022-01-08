@@ -19,7 +19,7 @@ class OutputWritter(ABC):
             export_objects_to_csv(path, objects)
 
     @staticmethod
-    def save_list_es(index: str, objects: typing.List[object], es_host: str, es_port: int):
+    def save_list_es(index: str, objects: typing.List[object], es_host: str, es_port: int, id_field=None):
         if len(objects) > 0:
             index = index.lower()
             es = Elasticsearch([{'host': es_host, 'port': es_port}])
@@ -27,7 +27,7 @@ class OutputWritter(ABC):
                 logging.debug(f'Creating index {index}')
                 es.indices.create(index=index)
             logging.debug(f'Insert data into index: {index}')
-            bulk(es, es_generate_bulk_data(index, objects))
+            bulk(es, es_generate_bulk_data(index, objects, id_field=id_field))
         else:
             logging.info('There is no data to save')
 

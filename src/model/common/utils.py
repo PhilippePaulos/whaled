@@ -58,9 +58,12 @@ def prepend_objects_to_csv(path: str, instance_list: typing.List[object], delimi
         os.rename(tmp_file_name, path)
 
 
-def es_generate_bulk_data(index, objects: typing.List[object]):
+def es_generate_bulk_data(index, objects: typing.List[object], id_field=None):
     for instance in objects:
-        yield {
+        data = {
             '_index': index,
             '_source': simplejson.dumps(instance.__dict__, use_decimal=True, default=str)
         }
+        if id_field:
+            data['_id'] = instance.__getattribute__(id_field)
+        yield data
