@@ -143,7 +143,8 @@ class ScanScrapper(OutputWritter):
 
     def save_trades_history(self):
         process = CrawlerProcess()
-        process.crawl(self.history_module, token_adress=self.token_adress, index=self.es_index,
+        process.crawl(self.history_module, base_url=self.base_url, min_token=TradesConfig().filter_num_tokens,
+                      token_adress=self.token_adress, index=self.es_index,
                       last_trade_index=self.last_checked_trade_index, es_host=self.es_host, es_port=self.es_port)
 
         process.start()
