@@ -1,8 +1,11 @@
 import logging
+import random
 import re
 from datetime import timedelta
 from decimal import Decimal
 from re import sub
+
+from scrapping.constants.web import USER_AGENT_LIST
 
 logger = logging.getLogger()
 
@@ -35,3 +38,8 @@ def parse_time_ago(current_time, time_ago_str):
             return compute_delta(delta_time, time_ago_str, int(match.group(3)), match.group(4), check_day=False)
         else:
             logging.error(f"Could not parse {time_ago_str} correctly. This pattern doesn't match any regex")
+
+
+def get_headers():
+    user_agent = USER_AGENT_LIST[random.randint(0, len(USER_AGENT_LIST) - 1)]
+    return {'User-Agent': user_agent}
