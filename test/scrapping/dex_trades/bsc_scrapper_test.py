@@ -10,7 +10,7 @@ from unittest.mock import patch
 from model.action import Action
 from model.token_info import TokenInfo
 from model.token_trade import TokenTrade
-from scrapping.dex_trades.bsc_scrapper import BscScanScrapper
+from dex_trades.bsc_scrapper import BscScanScrapper
 
 
 class BscScanScrapperTest(TestCase):

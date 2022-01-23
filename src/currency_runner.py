@@ -1,7 +1,7 @@
 from model.common.logging import setup_log
 from model.common.utils import parse_command_line
-from scrapping.currency.bogged_scrapper import BoggedScrapper
-from scrapping.currency.currency_config import CurrencyConfig
+from currency.bogged_scrapper import BoggedScrapper
+from currency.currency_config import CurrencyConfig
 
 
 def run():

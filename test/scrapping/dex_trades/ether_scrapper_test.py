@@ -9,7 +9,7 @@ from unittest.mock import patch
 
 from model.action import Action
 from model.token_trade import TokenTrade
-from scrapping.dex_trades.ether_scrapper import EtherScanScrapper
+from dex_trades.ether_scrapper import EtherScanScrapper
 
 
 class EtherScanScrapperTest(TestCase):

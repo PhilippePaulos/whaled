@@ -1,6 +1,6 @@
-from scrapping.currency.bogged_scrapper import BoggedScrapper
-from scrapping.dex_trades.history_scraper import BscHistoryScraper
-from scrapping.dex_trades.trades_scrapper import ScanScrapper
+from currency.bogged_scrapper import BoggedScrapper
+from dex_trades.history_scraper import BscHistoryScraper
+from dex_trades.trades_scrapper import ScanScrapper
 
 
 class BscScanScrapper(ScanScrapper):

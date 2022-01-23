@@ -5,7 +5,7 @@ from datetime import timedelta
 from decimal import Decimal
 from re import sub
 
-from scrapping.constants.web import USER_AGENT_LIST
+from constants.web import USER_AGENT_LIST
 
 logger = logging.getLogger()
 

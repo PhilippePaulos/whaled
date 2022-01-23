@@ -5,7 +5,7 @@ from decimal import Decimal, InvalidOperation
 
 from model.action import Action
 from model.token_trade import TokenTrade
-from scrapping.utils.utils import get_currency_value, parse_time_ago
+from utils.utils import get_currency_value, parse_time_ago
 
 
 def get_trade_from_row(current_time, tr, token_adress, chain='bsc'):

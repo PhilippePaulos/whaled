@@ -1,7 +1,7 @@
 from datetime import datetime
 from unittest import TestCase
 
-from scrapping.dex_trades.trades_scrapper import ScanScrapper
+from dex_trades import ScanScrapper
 
 
 class ScanScrapperTest(TestCase):

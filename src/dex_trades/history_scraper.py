@@ -7,9 +7,9 @@ import scrapy
 from scrapy import Selector
 
 from model.common.writter import OutputWritter
-from scrapping.dex_trades import scan_helper
-from scrapping.utils import utils
-from scrapping.utils.utils import get_headers
+from dex_trades import scan_helper
+from utils import utils
+from utils.utils import get_headers
 
 
 class HistoryScraper(scrapy.Spider, OutputWritter):

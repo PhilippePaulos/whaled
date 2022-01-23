@@ -13,8 +13,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from model.common.singleton import Singleton
 from model.token_info import TokenInfo
-from scrapping.currency.currency_scrapper import CurrencyScrapper
-from scrapping.utils import utils
+from currency.currency_scrapper import CurrencyScrapper
+from utils import utils
 
 
 class ChartInstance(metaclass=Singleton):

@@ -8,7 +8,7 @@ from decimal import Decimal
 from model.common.output import OutputFormats
 from model.common.writter import OutputWritter
 from model.token_info import TokenInfo
-from scrapping.currency.currency_config import CurrencyConfig
+from currency.currency_config import CurrencyConfig
 
 
 class CurrencyScrapper(OutputWritter):

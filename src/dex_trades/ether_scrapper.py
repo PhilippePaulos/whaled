@@ -1,5 +1,5 @@
-from scrapping.dex_trades.history_scraper import EtherHistoryScraper
-from scrapping.dex_trades.trades_scrapper import ScanScrapper
+from dex_trades.history_scraper import EtherHistoryScraper
+from dex_trades.trades_scrapper import ScanScrapper
 
 
 class EtherScanScrapper(ScanScrapper):

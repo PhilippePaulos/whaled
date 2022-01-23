@@ -8,7 +8,7 @@ from unittest import TestCase, skip
 from unittest.mock import patch
 
 from model.token_info import TokenInfo
-from scrapping.currency.bogged_scrapper import BoggedScrapper
+from currency.bogged_scrapper import BoggedScrapper
 
 
 class BoggedScrapperTest(TestCase):

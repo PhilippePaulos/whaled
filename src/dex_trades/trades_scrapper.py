@@ -13,9 +13,9 @@ from scrapy.crawler import CrawlerProcess
 from model.common.utils import processing_time
 from model.common.writter import OutputWritter
 from model.token_trade import TokenTrade
-from scrapping.dex_trades.scan_helper import get_trade_from_row
-from scrapping.dex_trades.trades_config import TradesConfig
-from scrapping.utils.utils import get_headers
+from dex_trades.scan_helper import get_trade_from_row
+from dex_trades.trades_config import TradesConfig
+from utils.utils import get_headers
 
 
 class ScanScrapper(OutputWritter):

@@ -1,8 +1,8 @@
 from model.common.logging import setup_log
 from model.common.utils import parse_command_line
-from scrapping.dex_trades.bsc_scrapper import BscScanScrapper
-from scrapping.dex_trades.ether_scrapper import EtherScanScrapper
-from scrapping.dex_trades.trades_config import TradesConfig
+from dex_trades.bsc_scrapper import BscScanScrapper
+from dex_trades.ether_scrapper import EtherScanScrapper
+from dex_trades.trades_config import TradesConfig
 
 
 def run():
